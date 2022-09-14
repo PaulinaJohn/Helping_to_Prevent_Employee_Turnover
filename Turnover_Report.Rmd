@@ -1,0 +1,191 @@
+---
+title: '**Why might our employees leave?**'
+output:
+  github_document
+---
+
+**Heads up:** *The names, content, and the narrative around the data used in this work are fictional; a combined product of my imagination and inspiration from the case study packet provided for Track 2 of the capstone project course- course 8- of the [Google Data Analytics Professional Certificate on Coursera](https://www.coursera.org/professional-certificates/google-data-analytics?utm_source=gg&utm_medium=sem&utm_campaign=15-GoogleDataAnalytics-ROW&utm_content=B2C&campaignid=12566515400&adgroupid=117869292925&device=c&keyword=best%20courses%20for%20data%20analytics&matchtype=b&network=g&devicemodel=&adpostion=&creativeid=507290840618&hide_mobile_promo&gclid=CjwKCAjwt7SWBhAnEiwAx8ZLarCAB15nWLR97OdBdUrdZBVrolvnYzsLaXnXZnfbGHMTWsNnWC-SDxoCdJYQAvD_BwE). Hence, the insights generated are not necessarily representative of reality.*
+
+*The data used is [a public employee profile dataset from Kaggle](https://www.kaggle.com/datasets/jacksonchou/hr-data-for-analytics?select=HR_comma_sep.csv) made available under the [CC0: Public Domain](https://creativecommons.org/publicdomain/zero/1.0/) license.*
+
+*My choice of this dataset and the project, entirely, is stirred by my love for the **Human Resources** profession and how **People Analytics** should be embraced to promote data-driven decision making in HR. I hope you enjoy the ride through this work as much as I did creating it.*
+
+## The Scenario
+
+In this project, I worked as a junior People Analyst for a business intelligence consultant, **Jotgel Analytics**. My organization specializes in helping businesses make informed decisions across different business functions using data and Business intelligence technologies. Although I only joined the team 6 months ago, the People Analytics unit Manager, Clara Michael, who is also my boss, believes I am ready to take up bigger challenges and had asked me to lead a project for a new client, **Qeug**.
+
+***About Qeug***
+
+Qeug provides training and counseling services to young immigrants looking to settle in a new country anywhere, land a job early enough, and continue to get personal and career guidance for, at least, a year into their first job.
+
+Qeug is young, only in its first month of operation. However, the CEO believes he is building a company that has come to stay. He had shared this vision with the HR Director, Tracy Victor upon her coming on board, with the later counseling that, as Qeug renders a human-to-human-interaction-based service, it needs its best hands on the job for as long as possible, especially as it wades through its infancy stage. For example, a customer might have gotten used to an employee in a counseling role and they may not be pleased starting all over with a new employee. Qeug cannot afford to lose any of its customers at this early stage too.
+
+So, according to the HR director, Qeug needs to be intentional about creating a good place to work for its employees so they can stick around long enough to continue to help its clients navigate their way to success and comfort in a new country. It believes that, to get on a good path towards achieving this, the company can begin with getting a generic view of likely reasons why employees may leave, as a guide in sketching and implementing evolve-able preventive policies early on. Alongside this, they can use the insights generated to spot factors similar or peculiar to Qeug's situation as they accumulate more internal data towards their first end-of-year analysis, rather than wait for contingent situations to occur.
+
+Tracy had these questions:
+
+-   What is the turnover status from the dataset being examined?
+
+-   What are the likely reasons why an employee may leave?
+
+-   What recommendations can guide Qeug in its quest to retain its employees?
+
+## Executing the project
+
+Having Learnt about the Data Analytics process in the [Google Data Analytics Certificate Program](https://www.coursera.org/professional-certificates/google-data-analytics?utm_source=gg&utm_medium=sem&utm_campaign=15-GoogleDataAnalytics-ROW&utm_content=B2C&campaignid=12566515400&adgroupid=117869292925&device=c&keyword=best%20courses%20for%20data%20analytics&matchtype=b&network=g&devicemodel=&adpostion=&creativeid=507290840618&hide_mobile_promo&gclid=CjwKCAjwt7SWBhAnEiwAx8ZLarCAB15nWLR97OdBdUrdZBVrolvnYzsLaXnXZnfbGHMTWsNnWC-SDxoCdJYQAvD_BwE), I have taken a liking to applying it in my projects as it helps for **structured thinking**. While there are other variations of the process, like the EMC data analytics life-cycle, the SAS data analytics life-cycle, the big data analytics..., etc., I used the Google Data analytics process as my guide in this project. It includes the **Ask**-**Prepare**-**Process**-**Analyze**-**Share**-**Act** phases.
+
+### **Ask:**
+
+In this phase, I framed my statement of the business task and Identified my Key stakeholders
+
+**Statement of the Business Task**
+
+To identify likely reasons for employee turnover in order to outline guiding preventive measures.
+
+**Key Stakeholders**
+
+-   Qeug CEO
+
+-   HR Director, Tracy Victor
+
+### **Prepare:**
+
+In this phase, I accessed the dataset he project. The HR Director has identified an employee profile dataset dataset from a hypothetical large company, made publicly available on Kaggle under the [CC0: Public Domain](https://creativecommons.org/publicdomain/zero/1.0/) license, with the current sharer hinting that the original provider had deleted their own submission. The data holds employee profile information.
+
+<https://www.kaggle.com/datasets/jacksonchou/hr-data-for-analytics?select=HR_comma_sep.csv>
+
+which she would like me to use. While the data may not entirely represent Qeug's business context, she believes it can provide the generic view they need on employee turnover.
+
+I needed to get a closer look at my data so, I proceeded to set up my environment. As you may have noticed, I used R for this project. You can also use Python, spreadsheets, a combination of an SQL server and one of the Bi tools like Tableau and PowerBi, among other options.
+
+## Setting up my environment
+
+I installed required packages; the `tidyverse`, and `skimr`. I used the `skimr` package because I wanted to explore the data set in depth before answering the questions.
+
+And, I loaded the packages.
+
+```{r loading installed packages}
+library(tidyverse)
+library(skimr)
+```
+
+I then moved on to load the data set.
+
+```{r loading in my dataset}
+employee_profile_data <- read_csv("~/R_project_files/Track2- GooogleDAcapstoneproject/First_HR_Analytics_Project/employee_profile_data.csv")
+```
+
+## Getting to know the data
+
+Next, I used functions like `head()`, `str()`, `glimpse()`, `colnames()`, and `skim_without_charts()` to get a summarized description of the data.
+
+With the `head()` function, I get to see the first 6 rows and all columns of the data set. However, what is more interesting, for me, is getting a peek into the data types and column names.
+
+```{r Previewing the data}
+head(employee_profile_data)
+```
+
+The `str()` and `glimpse()` functions help me better understand the data.
+
+```{r}
+str(employee_profile_data)
+```
+
+```{r}
+glimpse(employee_profile_data)
+```
+
+The `colnames()` function provides me a list of the names of the columns in the data set.
+
+```{r}
+colnames(employee_profile_data)
+```
+
+From the above, the data set has 14,999 rows and 10 columns. Most of the columns hold numeric data, with only two containing text data, and in this case, categorical.
+
+The data provides information like satisfaction level, results obtained from last evaluation, number of projects an employee was involved in for the year, how long the employee has been in the organization, if they have been involved in any accident at work, if they are still with the organization or have left, etc. Each row is a record representing an employee.
+
+Some columns, although descriptive, could be better if shorter, e.g, the `time_spend_company` column. The name, `sales`, is inappropriate for the information contained in the column it represents. The column shows the department an employee belongs to rather than sales details.
+
+With 14,999 records, the data set is enough for this analysis. The essence of the project is to look at historical, non-Qeug data, so the data is also appropriate for the task. Furthermore, it has been stripped of all personally Identifiable information (PII) like employee names, email address, residential address, phone number, etc., and it is cited.
+
+Safe to say our Data ROCCS!
+
+### **Process:**
+
+In this phase, I cleaned and transformed my data in preparation for analysis, and documented each action in a change log. Access it here.
+
+Recall that, in the prepare phase, some data transformation needs had already been identified. So, in this phase, I examined the data further to detect dirty data issues, and fix them.
+
+Because I do not like to assume data cleaning issues as that may lead to missing out on those I do not remember or have never encountered, I prefer to use techniques that will search through the data to fish them out. So, I coined a sequential process to use in combination with the usual dirty data scenarios most Data Analysts face, like the duplicate records, missing values, incorrect or misspelled values, outliers, etc. I call my process the **Detect**-**Expose**-**Fix** Method.
+
+In some cases, all of these three steps can be achieved in one syntax, query or code. In some,two of the steps gets tackled at a go. When otherwise, each step is executed in turn. Let's begin!
+
+**Removing Duplicates**\
+I usually like to begin cleaning my dataset by removing duplicates but the context of the dataset has to be considered. For this dataset, there are no unique Identifiers for each record. so, there is no evidence that any of the entries is duplicated. Each entry represents details about one employee. Based on the fore-stated, I skipped that step.
+
+**Addressing Missing Values**
+
+```{r}
+employee_profile_data %>%
+  is.na %>%
+  sum
+```
+
+```{r}
+sum(is.na(employee_profile_data))
+```
+
+There are no missing values in this dataset.
+
+**Renaming columns**
+
+The `time_spend_company` column is better if shorter. I renamed it as `tenure`. The name, "sales", is incorrect for the information contained in the column it represents. Instead, the entries in the column shows the `department` each employee works in. I also renamed the promotion_last_5years and number_project columns. The goal here was to make each column more representative and descriptive.
+
+```{r renaming columns}
+employee_profile_renamed <- 
+employee_profile_data %>%
+  rename(tenure = time_spend_company, department = sales, promoted_last_5years = promotion_last_5years, num_of_projects = number_project, mean_monthly_hours = average_montly_hours)
+```
+
+To confirm this change, I called the `colnames()` function again
+
+```{r}
+colnames(employee_profile_renamed)
+```
+
+Changes were effected!
+
+Let's see what the dataset looks like now.
+
+```{r}
+head(employee_profile_renamed)
+```
+
+**Checking for incorrectly entered or Misspelled values**
+
+Following my **Expose-detect-fix**, I want to get distinct values of entries in each column. This will help bring incorrectly entered or mis-spelled values to the fore.
+
+```{r}
+unique(employee_profile_renamed)
+```
+
+**Dealing with Outliers**
+
+create box plot
+
+Some columns show marked deviations, e.g, the `average_monthly_hours` column. So, there are indications of outliers. But the context of the dataset needs to be considered here before labeling extreme values as outliers. Looking at the `num_of_projects` column for example, some employees may have participated in much more projects than others. Also, for the `time_spend_company` or `` ` ``average_monthly_hours\` data, it is not out of place for some employees to have worked for far more years from the average time spent in the company or that an employee could work double the time an employee would work on average so, in the context of the dataset and this analysis. in particular, **outliers may not mean incorrect data or out-of-range data, especially as there is no maximum range set.** Hence, the solution to treating these particular set of outliers is not removing them.
+
+-   Also, from the `skim_without_charts` output, the standard deviation results for some columns indicate presence of outliers.
+
+With the `skim_without_charts()` function, I get a more detailed summary of the data, enriched with summary statistics.
+
+```{r}
+skim_without_charts(employee_profile_data)
+```
+
+## Analyse
+
+### EDA
+
+create histogram in form of subplots, create correlation matrix
