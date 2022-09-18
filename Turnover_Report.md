@@ -127,6 +127,12 @@ answering the questions.
 And, I loaded the packages.
 
 ``` r
+#install.packages("tidyverse")
+#install.packages("skimr")
+#install.packages("ggplot2")
+```
+
+``` r
 library(tidyverse)
 ```
 
@@ -141,6 +147,7 @@ library(tidyverse)
 
 ``` r
 library(skimr)
+library(ggplot2)
 ```
 
 I then moved on to load the data set.
@@ -286,7 +293,7 @@ prefer to use techniques that will search through the data to fish them
 out. So, I coined a sequential process to use in combination with the
 usual dirty data scenarios most Data Analysts face, like the duplicate
 records, missing values, incorrect or misspelled values, outliers, etc.
-I call my process the **Detect**-**Expose**-**Fix** Method.
+I call my process the **Detect**-**Expose**-**Fix** Model.
 
 In some cases, all of these three steps can be achieved in one syntax,
 query or code. In some,two of the steps gets tackled at a go. When
@@ -321,8 +328,8 @@ There are no missing values in this dataset.
 
 The `time_spend_company` column is better if shorter. I renamed it as
 `tenure`. The name, “sales”, is incorrect for the information contained
-in the column it represents. Instead, the entries in the column shows
-the `department` each employee works in. I also renamed the
+in the column it represents. Instead, the entries in the column show the
+`department` each employee works in. I also renamed the
 promotion_last_5years and number_project columns. The goal here was to
 make each column more representative and descriptive.
 
@@ -345,30 +352,12 @@ colnames(employee_profile_renamed)
 
 Changes were effected!
 
-Let’s see what the dataset looks like now.
-
-``` r
-head(employee_profile_renamed)
-```
-
-    ## # A tibble: 6 × 10
-    ##   satisfac…¹ last_…² num_o…³ mean_…⁴ tenure Work_…⁵  left promo…⁶ depar…⁷ salary
-    ##        <dbl>   <dbl>   <dbl>   <dbl>  <dbl>   <dbl> <dbl>   <dbl> <chr>   <chr> 
-    ## 1       0.38    0.53       2     157      3       0     1       0 sales   low   
-    ## 2       0.8     0.86       5     262      6       0     1       0 sales   medium
-    ## 3       0.11    0.88       7     272      4       0     1       0 sales   medium
-    ## 4       0.72    0.87       5     223      5       0     1       0 sales   low   
-    ## 5       0.37    0.52       2     159      3       0     1       0 sales   low   
-    ## 6       0.41    0.5        2     153      3       0     1       0 sales   low   
-    ## # … with abbreviated variable names ¹​satisfaction_level, ²​last_evaluation,
-    ## #   ³​num_of_projects, ⁴​mean_monthly_hours, ⁵​Work_accident,
-    ## #   ⁶​promoted_last_5years, ⁷​department
-
 **Checking for incorrectly entered or Misspelled values**
 
-Following my **Expose-detect-fix**, I want to get distinct values of
-entries in each column. This will help bring incorrectly entered or
-mis-spelled values to the fore.
+Following my **Detect-Expose-Fix** model, I want to get distinct values
+of entries in columns with categorical data. This will help bring
+incorrectly entered or mis-spelled values to the fore. The columns are
+the
 
 ``` r
 unique(employee_profile_renamed)
@@ -459,3 +448,10 @@ Data summary
 ### EDA
 
 create histogram in form of subplots, create correlation matrix
+
+``` r
+ggplot(data = employee_profile_renamed) +
+  geom_boxplot(mapping = aes(x = department, y = mean_monthly_hours, color = 'red'))
+```
+
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
