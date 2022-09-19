@@ -68,12 +68,14 @@ And, I loaded the packages.
 #install.packages("tidyverse")
 #install.packages("skimr")
 #install.packages("ggplot2")
+#install.packages("Hmisc")
 ```
 
 ```{r loading installed packages}
 library(tidyverse)
 library(skimr)
 library(ggplot2)
+library(Hmisc)
 ```
 
 I then moved on to load the data set.
@@ -120,34 +122,30 @@ Safe to say our Data ROCCS!
 
 ### **Process:**
 
-In this phase, I cleaned and transformed my data in preparation for analysis, and documented each action in a change log. Access it here.
+In this phase, I cleaned and transformed my data in preparation for analysis, and documented each action in a change log.
 
 Recall that, in the prepare phase, some data transformation needs had already been identified. So, in this phase, I examined the data further to detect dirty data issues, and fix them.
 
-Because I do not like to assume data cleaning issues as that may lead to missing out on those I do not remember or have never encountered, I prefer to use techniques that will search through the data to fish them out. So, I coined a sequential process to use in combination with the usual dirty data scenarios most Data Analysts face, like the duplicate records, missing values, incorrect or misspelled values, outliers, etc. I call my process the **Detect**-**Expose**-**Fix** Model.
+Because I do not like to assume data cleaning issues as that may lead to missing out on those I do not remember or have never encountered, I prefer to conceptualize techniques that will search through the data to fish them out. So, I coined a sequential process to use in combination with the usual dirty data scenarios most Data Analysts face, like the duplicate records, missing values, incorrect or misspelled values, outliers, etc. I call my process the **Detect**-**Expose**-**Fix** Model. This model helps me avoid trying to treat a dirty data issue that doesn't exist and helps me focus on those that exist.
 
 In some cases, all of these three steps can be achieved in one syntax, query or code. In some,two of the steps gets tackled at a go. When otherwise, each step is executed in turn. Let's begin!
 
-**Removing Duplicates**\
-I usually like to begin cleaning my dataset by removing duplicates but the context of the dataset has to be considered. For this dataset, there are no unique Identifiers for each record. so, there is no evidence that any of the entries is duplicated. Each entry represents details about one employee. Based on the fore-stated, I skipped that step.
+**Dealing with Duplicates**\
+I usually like to begin cleaning my dataset by removing duplicates but the context of the dataset has to be considered. For this dataset, there is no unique identifier for each record. so, there is no evidence that any of the rows is duplicated. Each row represents details about one employee and it may not be out of place to find two or more employees with similar values. Based on the fore-stated, I can say that there are no duplicate rows in this dataset.
 
 **Addressing Missing Values**
 
 ```{r}
-employee_profile_data %>%
-  is.na %>%
+employee_profile_data %>%        # sum(is.na(employee_profile_data))- also works.
+  is.na %>%                      # I just like to `pipe` to keep my code neat.
   sum
-```
-
-```{r}
-sum(is.na(employee_profile_data))
 ```
 
 There are no missing values in this dataset.
 
 **Renaming columns**
 
-The `time_spend_company` column is better if shorter. I renamed it as `tenure`. The name, "sales", is incorrect for the information contained in the column it represents. Instead, the entries in the column show the `department` each employee works in. I also renamed the promotion_last_5years and number_project columns. The goal here was to make each column more representative and descriptive.
+The `time_spend_company` column is better if shorter. I renamed it as `tenure`. The name, "sales", is incorrect for the information contained in the column it represents. Instead, the entries in the column show the `department` each employee works in. I also renamed the `promotion_last_5years`, `number_project columns`, etc. The goal here was to make each column more representative and descriptive.
 
 ```{r renaming columns}
 employee_profile_renamed <- 
@@ -163,17 +161,39 @@ colnames(employee_profile_renamed)
 
 Changes were effected!
 
-**Checking for incorrectly entered or Misspelled values**
+**Dealing with incorrectly entered or mis-spelled values.**
 
-Following my **Detect-Expose-Fix** model, I want to get distinct values of entries in columns with categorical data. This will help bring incorrectly entered or mis-spelled values to the fore. The columns are the
+My focus here is on the two columns with categorical (text) data; `department` and `salary` columns. Following my **Detect-Expose-Fix** model, first, I want to get distinct values in these columns. This will help bring incorrectly entered or mis-spelled values to the fore, if any.
 
 ```{r}
-unique(employee_profile_renamed)
+employee_profile_renamed %>%
+  distinct(department)
 ```
+
+```{r}
+employee_profile_renamed %>%
+  distinct(salary)
+  
+```
+
+There are no mis-spelled entries in any of the columns.
 
 **Dealing with Outliers**
 
+Here, I used a box plot to check the distribution of all columns with numeric values. The box plot will also reveal if there are outliers.
+
+```{r}
+ggplot(data = employee_profile_renamed) +
+  geom_boxplot(mapping = aes(x = satisfaction_level, color = 'red'))
+```
+
 create box plot
+
+```{r}
+employee_profile_renamed %>%
+  select(-c(department, salary)) %>%
+  hist.data.frame()
+```
 
 Some columns show marked deviations, e.g, the `average_monthly_hours` column. So, there are indications of outliers. But the context of the dataset needs to be considered here before labeling extreme values as outliers. Looking at the `num_of_projects` column for example, some employees may have participated in much more projects than others. Also, for the `time_spend_company` or `` ` ``average_monthly_hours\` data, it is not out of place for some employees to have worked for far more years from the average time spent in the company or that an employee could work double the time an employee would work on average so, in the context of the dataset and this analysis. in particular, **outliers may not mean incorrect data or out-of-range data, especially as there is no maximum range set.** Hence, the solution to treating these particular set of outliers is not removing them.
 
@@ -193,5 +213,5 @@ create histogram in form of subplots, create correlation matrix
 
 ```{r}
 ggplot(data = employee_profile_renamed) +
-  geom_boxplot(mapping = aes(x = department, y = mean_monthly_hours, color = 'red'))
+  geom_boxplot(mapping = aes(x = mean_monthly_hours, color = 'red'))
 ```
