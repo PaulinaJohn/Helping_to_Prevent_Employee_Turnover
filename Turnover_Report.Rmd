@@ -183,16 +183,38 @@ There are no mis-spelled entries in any of the columns.
 Here, I used a box plot to check the distribution of all columns with numeric values. The box plot will also reveal if there are outliers.
 
 ```{r}
-ggplot(data = employee_profile_renamed) +
-  geom_boxplot(mapping = aes(x = satisfaction_level, color = 'red'))
+# ggplot(data = employee_profile_renamed) +
+  # geom_boxplot(mapping = aes(x = satisfaction_level, color = 'red'))
+tail(employee_profile_renamed)
+```
+
+```{r}
+hr_hist <- employee_profile_renamed %>%
+  par(mfrow=c(1,3))
+boxplot(employee_profile_renamed$satisfaction_level,col="#3090C7", main = "Satisfaction level") 
+boxplot(employee_profile_renamed$last_evaluation,col="#3090C7", main = "Last evaluation")
+boxplot(employee_profile_renamed$mean_monthly_hours,col="#3090C7", main = "Average_monthly_hours")
+```
+
+```{r}
+hr_hist <- employee_profile_renamed %>%
+  par(mfrow=c(1,2))
+boxplot(employee_profile_renamed$num_of_projects,col="#3090C7", main = "Number_of_projects") 
+boxplot(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
 ```
 
 create box plot
 
 ```{r}
-employee_profile_renamed %>%
-  select(-c(department, salary)) %>%
-  hist.data.frame()
+hr_hist <- employee_profile_renamed %>%
+  par(mfrow=c(1,3))
+hist(employee_profile_renamed$satisfaction_level,col="#3090C7", main = "Satisfaction level") 
+hist(employee_profile_renamed$last_evaluation,col="#3090C7", main = "Last evaluation")
+hist(employee_profile_renamed$mean_monthly_hours,col="#3090C7", main = "Average_monthly_hours")
+hist(employee_profile_renamed$num_of_projects,col="#3090C7", main = "Number_of_projects") 
+hist(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
+hist(employee_profile_renamed$promoted_last_5years, col="#3090C7", main = "Tenure")
+#hist(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
 ```
 
 Some columns show marked deviations, e.g, the `average_monthly_hours` column. So, there are indications of outliers. But the context of the dataset needs to be considered here before labeling extreme values as outliers. Looking at the `num_of_projects` column for example, some employees may have participated in much more projects than others. Also, for the `time_spend_company` or `` ` ``average_monthly_hours\` data, it is not out of place for some employees to have worked for far more years from the average time spent in the company or that an employee could work double the time an employee would work on average so, in the context of the dataset and this analysis. in particular, **outliers may not mean incorrect data or out-of-range data, especially as there is no maximum range set.** Hence, the solution to treating these particular set of outliers is not removing them.
@@ -208,8 +230,6 @@ skim_without_charts(employee_profile_data)
 ## Analyse
 
 ### EDA
-
-create histogram in form of subplots, create correlation matrix
 
 ```{r}
 ggplot(data = employee_profile_renamed) +

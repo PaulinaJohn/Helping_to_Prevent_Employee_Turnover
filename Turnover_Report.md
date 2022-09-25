@@ -413,21 +413,84 @@ Here, I used a box plot to check the distribution of all columns with
 numeric values. The box plot will also reveal if there are outliers.
 
 ``` r
-ggplot(data = employee_profile_renamed) +
-  geom_boxplot(mapping = aes(x = satisfaction_level, color = 'red'))
+# ggplot(data = employee_profile_renamed) +
+  # geom_boxplot(mapping = aes(x = satisfaction_level, color = 'red'))
+tail(employee_profile_renamed)
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+    ## # A tibble: 6 × 10
+    ##   satisfac…¹ last_…² num_o…³ mean_…⁴ tenure Work_…⁵  left promo…⁶ depar…⁷ salary
+    ##        <dbl>   <dbl>   <dbl>   <dbl>  <dbl>   <dbl> <dbl>   <dbl> <chr>   <chr> 
+    ## 1       0.76    0.83       6     293      6       0     1       0 support low   
+    ## 2       0.4     0.57       2     151      3       0     1       0 support low   
+    ## 3       0.37    0.48       2     160      3       0     1       0 support low   
+    ## 4       0.37    0.53       2     143      3       0     1       0 support low   
+    ## 5       0.11    0.96       6     280      4       0     1       0 support low   
+    ## 6       0.37    0.52       2     158      3       0     1       0 support low   
+    ## # … with abbreviated variable names ¹​satisfaction_level, ²​last_evaluation,
+    ## #   ³​num_of_projects, ⁴​mean_monthly_hours, ⁵​Work_accident,
+    ## #   ⁶​promoted_last_5years, ⁷​department
+
+``` r
+hr_hist <- employee_profile_renamed %>%
+  par(mfrow=c(1,3))
+```
+
+    ## Warning in par(., mfrow = c(1, 3)): argument 1 does not name a graphical
+    ## parameter
+
+``` r
+boxplot(employee_profile_renamed$satisfaction_level,col="#3090C7", main = "Satisfaction level") 
+boxplot(employee_profile_renamed$last_evaluation,col="#3090C7", main = "Last evaluation")
+boxplot(employee_profile_renamed$mean_monthly_hours,col="#3090C7", main = "Average_monthly_hours")
+```
+
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+hr_hist <- employee_profile_renamed %>%
+  par(mfrow=c(1,2))
+```
+
+    ## Warning in par(., mfrow = c(1, 2)): argument 1 does not name a graphical
+    ## parameter
+
+``` r
+boxplot(employee_profile_renamed$num_of_projects,col="#3090C7", main = "Number_of_projects") 
+boxplot(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
+```
+
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 create box plot
 
 ``` r
-employee_profile_renamed %>%
-  select(-c(department, salary)) %>%
-  hist.data.frame()
+hr_hist <- employee_profile_renamed %>%
+  par(mfrow=c(1,3))
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+    ## Warning in par(., mfrow = c(1, 3)): argument 1 does not name a graphical
+    ## parameter
+
+``` r
+hist(employee_profile_renamed$satisfaction_level,col="#3090C7", main = "Satisfaction level") 
+hist(employee_profile_renamed$last_evaluation,col="#3090C7", main = "Last evaluation")
+hist(employee_profile_renamed$mean_monthly_hours,col="#3090C7", main = "Average_monthly_hours")
+```
+
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
+hist(employee_profile_renamed$num_of_projects,col="#3090C7", main = "Number_of_projects") 
+hist(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
+hist(employee_profile_renamed$promoted_last_5years, col="#3090C7", main = "Tenure")
+```
+
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+
+``` r
+#hist(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
+```
 
 Some columns show marked deviations, e.g, the `average_monthly_hours`
 column. So, there are indications of outliers. But the context of the
@@ -491,11 +554,9 @@ Data summary
 
 ### EDA
 
-create histogram in form of subplots, create correlation matrix
-
 ``` r
 ggplot(data = employee_profile_renamed) +
   geom_boxplot(mapping = aes(x = mean_monthly_hours, color = 'red'))
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
