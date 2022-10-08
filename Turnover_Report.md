@@ -275,31 +275,32 @@ colnames(employee_profile_data)
     ##  [7] "left"                  "promotion_last_5years" "sales"                
     ## [10] "salary"
 
-From the above, the data set has 14,999 rows and 10 columns. Most of the
-columns hold numeric data, with only two containing text data, and in
-this case, categorical.
+The dataset provides information like satisfaction level, results
+obtained from last evaluation, number of projects an employee was
+involved in for the year, how long the employee has been in the
+organization, if they have been involved in any accident at work, if
+they are still with the organization or have left, etc. Each row is a
+record representing an employee.
 
-The data provides information like satisfaction level, results obtained
-from last evaluation, number of projects an employee was involved in for
-the year, how long the employee has been in the organization, if they
-have been involved in any accident at work, if they are still with the
-organization or have left, etc. Each row is a record representing an
-employee.
+From the above, the dataset has 14,999 rows and 10 columns. While 8 of
+the columns appear to hold numeric data, with only two containing text
+(categorical) data, a closer look reveals that the
+`promotion_last_5years` and `left` columns actually hold numeric
+representations of Boolean data in which, 0 indicates ‘False’ and 1
+indicates ‘True’. So, a value of 0 in the `left` column means that an
+employee is still with the company while 1 means that the employee has
+left the company. The same goes for the `promotion_5years` column. 0
+means that an employee has not been promoted in the last 5 years and 1
+means they have been promoted. So, we can, as well, say that these two
+columns contain categorical data but, encoding them with numbers helps
+us to examine their relationship with columns holding numeric data.
 
-Some columns, although descriptive, could be better if shorter, e.g, the
-`time_spend_company` column. The name, `sales`, is inappropriate for the
-information contained in the column it represents. The column shows the
-department an employee belongs to rather than sales details.
+The `time_spend_company` column could be made shorter and more
+descriptive. The name, `sales`, is inappropriate for the information
+contained in the column it represents. The column shows the department
+an employee belongs to, rather than sales details.
 
-With 14,999 records, the data set is enough for this analysis. The
-essence of the project is to look at historical, non-Qeug data, so the
-data is also appropriate for the task. Furthermore, it has been stripped
-of all personally Identifiable information (PII) like employee names,
-email address, residential address, phone number, etc., and it is cited.
-
-Safe to say our Data ROCCS!
-
-## Process**:**
+## Process
 
 In this phase, I cleaned and transformed my data in preparation for
 analysis, and documented each action in a change log.
@@ -426,8 +427,9 @@ There are no multiple variants of any of the values in these columns.
 
 #### Dealing with Outliers
 
-Here, I used a box plot to check the distribution of all columns with
-numeric values. The box plot will also reveal if there are outliers.
+Here, I used boxplots to check the distribution of all columns with
+numeric values. The boxplots will also reveal columns that have
+outliers.
 
 ``` r
 hr_hist <- employee_profile_renamed %>%
@@ -459,9 +461,23 @@ out-of-range data. Based on this, we keep the data as is, and we report
 the average for that column with the median, from the
 five-number-summary concept, rather than the mean.
 
+As we move on from this stage, we can conclude that:
+
+-   Our clean dataset now has 11,991 rows and 10 columns.
+
+-   With 14,999 records, the dataset is enough for this analysis. The
+    essence of the project is to look at historical data that is also
+    external to the company, **Qeug**, so the data is also appropriate
+    for the task. Furthermore, it has been stripped of all personally
+    Identifiable information (PII) like employee names, email address,
+    residential address, phone number, etc., and it is cited.
+
+Safe to say our Data ROCCS!
+
 ## Analyse
 
-Let’s explore the data for some insights and answer Tracy’s questions
+In this stage, I explored the data for insights and answered Tracy’s
+questions.
 
 ``` r
 skim_without_charts(employee_profile_renamed)
@@ -516,10 +532,8 @@ We can see from here that:
 -   In a month, an employee works for about 200 hours on average.
 
 -   Employees spend at least, 2 years at the company and 3 years on
-    average. However, there are a few employees who have stuck with the
+    average However, there are a few employees who have stuck with the
     company for as many as 10 years.
-
-    Let’s investigate further.
 
 ``` r
 hr_hist <- employee_profile_renamed %>%
@@ -540,47 +554,27 @@ hist(employee_profile_renamed$mean_monthly_hours,col="#3090C7", main = "Average_
 ``` r
 hist(employee_profile_renamed$num_of_projects,col="#3090C7", main = "Number_of_projects") 
 hist(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
-hist(employee_profile_renamed$promoted_last_5years, col="#3090C7", main = "Tenure")
+hist(employee_profile_renamed$Work_accident,col="#3090C7", main = "Had an acident at work?")
 ```
 
 ![](Turnover_Report_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
 
 ``` r
-#hist(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
-#hist(employee_profile_renamed$left,col="#3090C7", main = "exited the company")
-glimpse(employee_profile_renamed)
+hist(employee_profile_renamed$promoted_last_5years, col="#3090C7", main = "Promotion Status in the Last 5 years")
+hist(employee_profile_renamed$left,col="#3090C7", main = "Exited the company")
 ```
 
-    ## Rows: 11,991
-    ## Columns: 10
-    ## $ satisfaction_level   <dbl> 0.38, 0.80, 0.11, 0.72, 0.37, 0.41, 0.10, 0.92, 0…
-    ## $ last_evaluation      <dbl> 0.53, 0.86, 0.88, 0.87, 0.52, 0.50, 0.77, 0.85, 1…
-    ## $ num_of_projects      <dbl> 2, 5, 7, 5, 2, 2, 6, 5, 5, 2, 2, 6, 4, 2, 2, 2, 2…
-    ## $ mean_monthly_hours   <dbl> 157, 262, 272, 223, 159, 153, 247, 259, 224, 142,…
-    ## $ tenure               <dbl> 3, 6, 4, 5, 3, 3, 4, 5, 5, 3, 3, 4, 5, 3, 3, 3, 3…
-    ## $ Work_accident        <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…
-    ## $ left                 <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
-    ## $ promoted_last_5years <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…
-    ## $ department           <chr> "sales", "sales", "sales", "sales", "sales", "sal…
-    ## $ salary               <chr> "low", "medium", "medium", "low", "low", "low", "…
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-13-3.png)<!-- -->
 
-The major highlight in these charts are:
+-   Most of the columns show multimodal distributions that is,
+    distributions with more than one peak or mode.
 
--   Satisfaction level, last evaluation, Average monthly hours show a
-    near balanced presence of all datapoints in these column and,
-    infact, the avarge_monthly_hours column could pass for a normal
-    distribution.
+-   More than half of the employees have never had an accident at work.
 
--   
+-   Most of the employees have not been promoted in the last 5 years
+    however, majority have remained in the company compared to those who
+    have left.
 
-``` r
-# ggplot(data = employee_profile_renamed) +
-  # geom_boxplot(mapping = aes(x = satisfaction_level, color = 'red'))
-```
+    But are these insights enough to tell the entire story?
 
-### 
-
-Let’s now answer Tracy’s questions and look at other insights obtainable
-from the dataset.
-
--   What is the turnover status from the dataset being examined?
+    I proceeded into deep dive analysis.
