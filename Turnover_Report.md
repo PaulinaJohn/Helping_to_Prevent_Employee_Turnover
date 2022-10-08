@@ -324,18 +324,29 @@ otherwise, each step is executed in turn. Let’s begin!
 
 #### Dealing with Duplicates
 
-I usually like to begin cleaning my dataset by removing duplicates but
-the context of the dataset has to be considered. For this dataset, there
-is no unique identifier for each record. so, there is no evidence that
-any of the rows is duplicated. Each row represents details about one
-employee and it may not be out of place to find two or more employees
-with similar values. Based on the fore-stated, I can say that there are
-no duplicate rows in this dataset.
+I began by checking if there are duplicate rows in the dataset.
+
+``` r
+employee_profile_data %>%
+  duplicated() %>%
+  sum()
+```
+
+    ## [1] 3008
+
+There are 3008 duplicate rows in the dataset. I proceeded to remove
+them. I did this by collecting all unique rows into a new dataframe.
+
+``` r
+employee_profile_unique <- unique(employee_profile_data)
+```
+
+Duplicate rows removed!.
 
 #### Addressing Missing Values
 
 ``` r
-employee_profile_data %>%        # sum(is.na(employee_profile_data))- also works.
+employee_profile_unique %>%        # sum(is.na(employee_profile_data))- also works.
   is.na %>%                      # I just like to pipe to keep my code neat
   sum
 ```
@@ -355,7 +366,7 @@ was to make each column more representative and descriptive.
 
 ``` r
 employee_profile_renamed <- 
-employee_profile_data %>%
+employee_profile_unique %>%
   rename(tenure = time_spend_company, department = sales, promoted_last_5years = promotion_last_5years, num_of_projects = number_project, mean_monthly_hours = average_montly_hours)
 ```
 
@@ -434,7 +445,7 @@ boxplot(employee_profile_renamed$num_of_projects,col="#3090C7", main = "Number_o
 boxplot(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 From the boxplots above, we see that there are outliers in the `tenure`
 column. How do we treat this?
@@ -459,7 +470,7 @@ skim_without_charts(employee_profile_renamed)
 |                                                  |                          |
 |:-------------------------------------------------|:-------------------------|
 | Name                                             | employee_profile_renamed |
-| Number of rows                                   | 14999                    |
+| Number of rows                                   | 11991                    |
 | Number of columns                                | 10                       |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   |                          |
 | Column type frequency:                           |                          |
@@ -481,18 +492,18 @@ Data summary
 
 | skim_variable        | n_missing | complete_rate |   mean |    sd |    p0 |    p25 |    p50 |    p75 | p100 |
 |:---------------------|----------:|--------------:|-------:|------:|------:|-------:|-------:|-------:|-----:|
-| satisfaction_level   |         0 |             1 |   0.61 |  0.25 |  0.09 |   0.44 |   0.64 |   0.82 |    1 |
-| last_evaluation      |         0 |             1 |   0.72 |  0.17 |  0.36 |   0.56 |   0.72 |   0.87 |    1 |
-| num_of_projects      |         0 |             1 |   3.80 |  1.23 |  2.00 |   3.00 |   4.00 |   5.00 |    7 |
-| mean_monthly_hours   |         0 |             1 | 201.05 | 49.94 | 96.00 | 156.00 | 200.00 | 245.00 |  310 |
-| tenure               |         0 |             1 |   3.50 |  1.46 |  2.00 |   3.00 |   3.00 |   4.00 |   10 |
-| Work_accident        |         0 |             1 |   0.14 |  0.35 |  0.00 |   0.00 |   0.00 |   0.00 |    1 |
-| left                 |         0 |             1 |   0.24 |  0.43 |  0.00 |   0.00 |   0.00 |   0.00 |    1 |
-| promoted_last_5years |         0 |             1 |   0.02 |  0.14 |  0.00 |   0.00 |   0.00 |   0.00 |    1 |
+| satisfaction_level   |         0 |             1 |   0.63 |  0.24 |  0.09 |   0.48 |   0.66 |   0.82 |    1 |
+| last_evaluation      |         0 |             1 |   0.72 |  0.17 |  0.36 |   0.57 |   0.72 |   0.86 |    1 |
+| num_of_projects      |         0 |             1 |   3.80 |  1.16 |  2.00 |   3.00 |   4.00 |   5.00 |    7 |
+| mean_monthly_hours   |         0 |             1 | 200.47 | 48.73 | 96.00 | 157.00 | 200.00 | 243.00 |  310 |
+| tenure               |         0 |             1 |   3.36 |  1.33 |  2.00 |   3.00 |   3.00 |   4.00 |   10 |
+| Work_accident        |         0 |             1 |   0.15 |  0.36 |  0.00 |   0.00 |   0.00 |   0.00 |    1 |
+| left                 |         0 |             1 |   0.17 |  0.37 |  0.00 |   0.00 |   0.00 |   0.00 |    1 |
+| promoted_last_5years |         0 |             1 |   0.02 |  0.13 |  0.00 |   0.00 |   0.00 |   0.00 |    1 |
 
 We can see from here that:
 
--   Satisfaction level at this company is 0.61 on average, out of a
+-   Satisfaction level at this company is 0.62 on average, out of a
     possible 1.0.
 
 -   Also, in the last evaluation exercise, employees scored above 0.7 on
@@ -502,10 +513,10 @@ We can see from here that:
     with the median- p50- here because the column contains discrete
     values).
 
--   In a month, an employee works for about 201 hours on average.
+-   In a month, an employee works for about 200 hours on average.
 
--   Employees spend at least, 2 years in the company and 3 years on
-    average. However, there are employees that have stuck with the
+-   Employees spend at least, 2 years at the company and 3 years on
+    average. However, there are a few employees who have stuck with the
     company for as many as 10 years.
 
     Let’s investigate further.
@@ -524,7 +535,7 @@ hist(employee_profile_renamed$last_evaluation,col="#3090C7", main = "Last evalua
 hist(employee_profile_renamed$mean_monthly_hours,col="#3090C7", main = "Average_monthly_hours")
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 hist(employee_profile_renamed$num_of_projects,col="#3090C7", main = "Number_of_projects") 
@@ -532,12 +543,26 @@ hist(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
 hist(employee_profile_renamed$promoted_last_5years, col="#3090C7", main = "Tenure")
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
 
 ``` r
 #hist(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
 #hist(employee_profile_renamed$left,col="#3090C7", main = "exited the company")
+glimpse(employee_profile_renamed)
 ```
+
+    ## Rows: 11,991
+    ## Columns: 10
+    ## $ satisfaction_level   <dbl> 0.38, 0.80, 0.11, 0.72, 0.37, 0.41, 0.10, 0.92, 0…
+    ## $ last_evaluation      <dbl> 0.53, 0.86, 0.88, 0.87, 0.52, 0.50, 0.77, 0.85, 1…
+    ## $ num_of_projects      <dbl> 2, 5, 7, 5, 2, 2, 6, 5, 5, 2, 2, 6, 4, 2, 2, 2, 2…
+    ## $ mean_monthly_hours   <dbl> 157, 262, 272, 223, 159, 153, 247, 259, 224, 142,…
+    ## $ tenure               <dbl> 3, 6, 4, 5, 3, 3, 4, 5, 5, 3, 3, 4, 5, 3, 3, 3, 3…
+    ## $ Work_accident        <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…
+    ## $ left                 <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1…
+    ## $ promoted_last_5years <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…
+    ## $ department           <chr> "sales", "sales", "sales", "sales", "sales", "sal…
+    ## $ salary               <chr> "low", "medium", "medium", "low", "low", "low", "…
 
 The major highlight in these charts are:
 

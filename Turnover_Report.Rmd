@@ -134,12 +134,26 @@ In some cases, all of these three steps can be achieved in one syntax, query or 
 
 #### Dealing with Duplicates
 
-I usually like to begin cleaning my dataset by removing duplicates but the context of the dataset has to be considered. For this dataset, there is no unique identifier for each record. so, there is no evidence that any of the rows is duplicated. Each row represents details about one employee and it may not be out of place to find two or more employees with similar values. Based on the fore-stated, I can say that there are no duplicate rows in this dataset.
+I began by checking if there are duplicate rows in the dataset.
+
+```{r}
+employee_profile_data %>%
+  duplicated() %>%
+  sum()
+```
+
+There are 3008 duplicate rows in the dataset. I proceeded to remove them. I did this by collecting all unique rows into a new dataframe.
+
+```{r}
+employee_profile_unique <- unique(employee_profile_data)
+```
+
+Duplicate rows removed!.
 
 #### Addressing Missing Values
 
 ```{r}
-employee_profile_data %>%        # sum(is.na(employee_profile_data))- also works.
+employee_profile_unique %>%        # sum(is.na(employee_profile_data))- also works.
   is.na %>%                      # I just like to pipe to keep my code neat
   sum
 ```
@@ -152,7 +166,7 @@ The `time_spend_company` column is better if shorter. I renamed it as `tenure`. 
 
 ```{r renaming columns}
 employee_profile_renamed <- 
-employee_profile_data %>%
+employee_profile_unique %>%
   rename(tenure = time_spend_company, department = sales, promoted_last_5years = promotion_last_5years, num_of_projects = number_project, mean_monthly_hours = average_montly_hours)
 ```
 
@@ -209,15 +223,15 @@ skim_without_charts(employee_profile_renamed)
 
 We can see from here that:
 
--   Satisfaction level at this company is 0.61 on average, out of a possible 1.0.
+-   Satisfaction level at this company is 0.62 on average, out of a possible 1.0.
 
 -   Also, in the last evaluation exercise, employees scored above 0.7 on average, out of a possible 1.0. Appears good enough.
 
 -   On average, an employee is involved in 4 projects (I am reporting with the median- p50- here because the column contains discrete values).
 
--   In a month, an employee works for about 201 hours on average.
+-   In a month, an employee works for about 200 hours on average.
 
--   Employees spend at least, 2 years in the company and 3 years on average. However, there are employees that have stuck with the company for as many as 10 years.
+-   Employees spend at least, 2 years at the company and 3 years on average. However, there are a few employees who have stuck with the company for as many as 10 years.
 
     Let's investigate further.
 
@@ -232,6 +246,7 @@ hist(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
 hist(employee_profile_renamed$promoted_last_5years, col="#3090C7", main = "Tenure")
 #hist(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
 #hist(employee_profile_renamed$left,col="#3090C7", main = "exited the company")
+glimpse(employee_profile_renamed)
 ```
 
 The major highlight in these charts are:
