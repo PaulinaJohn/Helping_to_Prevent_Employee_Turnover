@@ -20,7 +20,7 @@ love for the **Human Resources** profession and how **People Analytics**
 should be embraced to promote data-driven decision making in HR. I hope
 you enjoy the ride through this work as much as I did creating it.*
 
-## The Scenario
+### The Scenario
 
 In this project, I worked as a junior People Analyst for a business
 intelligence consultant, **Jotgel Analytics**. My organization
@@ -70,7 +70,7 @@ Tracy had these questions:
 -   What recommendations can guide Qeug in its quest to retain its
     employees?
 
-## Executing the project
+### Executing the project
 
 Having Learnt about the Data Analytics process in the [Google Data
 Analytics Certificate
@@ -82,26 +82,26 @@ life-cycle, the big data analytics…, etc., I used the Google Data
 analytics process as my guide in this project. It includes the
 **Ask**-**Prepare**-**Process**-**Analyze**-**Share**-**Act** phases.
 
-### **Ask:**
+## **Ask:**
 
 In this phase, I framed my statement of the business task and Identified
 my Key stakeholders
 
-**Statement of the Business Task**
+#### Statement of the Business Task
 
 To identify likely reasons for employee turnover in order to outline
 guiding preventive measures.
 
-**Key Stakeholders**
+#### Key Stakeholders
 
 -   Qeug CEO
 
 -   HR Director, Tracy Victor
 
-### **Prepare:**
+## **Prepare:**
 
 In this phase, I accessed the dataset he project. The HR Director has
-identified an employee profile dataset dataset from a hypothetical large
+identified an employee profile dataset from a hypothetical large
 company, made publicly available on Kaggle under the [CC0: Public
 Domain](https://creativecommons.org/publicdomain/zero/1.0/) license,
 with the current sharer hinting that the original provider had deleted
@@ -118,7 +118,7 @@ environment. As you may have noticed, I used R for this project. You can
 also use Python, spreadsheets, a combination of an SQL server and one of
 the Bi tools like Tableau and PowerBi, among other options.
 
-## Setting up my environment
+#### Setting up my environment
 
 I installed required packages; the `tidyverse`, and `skimr`. I used the
 `skimr` package because I wanted to explore the data set in depth before
@@ -131,6 +131,7 @@ And, I loaded the packages.
 #install.packages("skimr")
 #install.packages("ggplot2")
 #install.packages("Hmisc")
+#install.packages("ggpubr")
 ```
 
 ``` r
@@ -166,6 +167,10 @@ library(Hmisc)
     ## 
     ##     format.pval, units
 
+``` r
+library(ggpubr)
+```
+
 I then moved on to load the data set.
 
 ``` r
@@ -181,7 +186,7 @@ employee_profile_data <- read_csv("~/R_project_files/Track2- GooogleDAcapstonepr
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
-## Getting to know the data
+#### Getting to know the data
 
 Next, I used functions like `head()`, `str()`, `glimpse()`,
 `colnames()`, and `skim_without_charts()` to get a summarized
@@ -294,7 +299,7 @@ email address, residential address, phone number, etc., and it is cited.
 
 Safe to say our Data ROCCS!
 
-### **Process:**
+## Process**:**
 
 In this phase, I cleaned and transformed my data in preparation for
 analysis, and documented each action in a change log.
@@ -317,7 +322,8 @@ In some cases, all of these three steps can be achieved in one syntax,
 query or code. In some,two of the steps gets tackled at a go. When
 otherwise, each step is executed in turn. Let’s begin!
 
-**Dealing with Duplicates**  
+#### Dealing with Duplicates
+
 I usually like to begin cleaning my dataset by removing duplicates but
 the context of the dataset has to be considered. For this dataset, there
 is no unique identifier for each record. so, there is no evidence that
@@ -326,11 +332,11 @@ employee and it may not be out of place to find two or more employees
 with similar values. Based on the fore-stated, I can say that there are
 no duplicate rows in this dataset.
 
-**Addressing Missing Values**
+#### Addressing Missing Values
 
 ``` r
 employee_profile_data %>%        # sum(is.na(employee_profile_data))- also works.
-  is.na %>%                      # I just like to `pipe` to keep my code neat.
+  is.na %>%                      # I just like to pipe to keep my code neat
   sum
 ```
 
@@ -338,7 +344,7 @@ employee_profile_data %>%        # sum(is.na(employee_profile_data))- also works
 
 There are no missing values in this dataset.
 
-**Renaming columns**
+#### Renaming columns
 
 The `time_spend_company` column is better if shorter. I renamed it as
 `tenure`. The name, “sales”, is incorrect for the information contained
@@ -366,7 +372,7 @@ colnames(employee_profile_renamed)
 
 Changes were effected!
 
-**Dealing with incorrectly entered or mis-spelled values.**
+#### Checking for multiple variants of a categorical value.
 
 My focus here is on the two columns with categorical (text) data;
 `department` and `salary` columns. Following my **Detect-Expose-Fix**
@@ -405,64 +411,104 @@ employee_profile_renamed %>%
     ## 2 medium
     ## 3 high
 
-There are no mis-spelled entries in any of the columns.
+There are no multiple variants of any of the values in these columns.
 
-**Dealing with Outliers**
+#### Dealing with Outliers
 
 Here, I used a box plot to check the distribution of all columns with
 numeric values. The box plot will also reveal if there are outliers.
 
 ``` r
-# ggplot(data = employee_profile_renamed) +
-  # geom_boxplot(mapping = aes(x = satisfaction_level, color = 'red'))
-tail(employee_profile_renamed)
-```
-
-    ## # A tibble: 6 × 10
-    ##   satisfac…¹ last_…² num_o…³ mean_…⁴ tenure Work_…⁵  left promo…⁶ depar…⁷ salary
-    ##        <dbl>   <dbl>   <dbl>   <dbl>  <dbl>   <dbl> <dbl>   <dbl> <chr>   <chr> 
-    ## 1       0.76    0.83       6     293      6       0     1       0 support low   
-    ## 2       0.4     0.57       2     151      3       0     1       0 support low   
-    ## 3       0.37    0.48       2     160      3       0     1       0 support low   
-    ## 4       0.37    0.53       2     143      3       0     1       0 support low   
-    ## 5       0.11    0.96       6     280      4       0     1       0 support low   
-    ## 6       0.37    0.52       2     158      3       0     1       0 support low   
-    ## # … with abbreviated variable names ¹​satisfaction_level, ²​last_evaluation,
-    ## #   ³​num_of_projects, ⁴​mean_monthly_hours, ⁵​Work_accident,
-    ## #   ⁶​promoted_last_5years, ⁷​department
-
-``` r
 hr_hist <- employee_profile_renamed %>%
-  par(mfrow=c(1,3))
+  par(mfrow=c(2,3))
 ```
 
-    ## Warning in par(., mfrow = c(1, 3)): argument 1 does not name a graphical
+    ## Warning in par(., mfrow = c(2, 3)): argument 1 does not name a graphical
     ## parameter
 
 ``` r
 boxplot(employee_profile_renamed$satisfaction_level,col="#3090C7", main = "Satisfaction level") 
 boxplot(employee_profile_renamed$last_evaluation,col="#3090C7", main = "Last evaluation")
 boxplot(employee_profile_renamed$mean_monthly_hours,col="#3090C7", main = "Average_monthly_hours")
-```
-
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
-
-``` r
-hr_hist <- employee_profile_renamed %>%
-  par(mfrow=c(1,2))
-```
-
-    ## Warning in par(., mfrow = c(1, 2)): argument 1 does not name a graphical
-    ## parameter
-
-``` r
 boxplot(employee_profile_renamed$num_of_projects,col="#3090C7", main = "Number_of_projects") 
 boxplot(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
-create box plot
+From the boxplots above, we see that there are outliers in the `tenure`
+column. How do we treat this?
+
+The context of the data needs to be considered in deciding what to do
+with outliers. The column of focus here holds details of how long an
+employee has worked at the company. It is not out of place for some
+employees to have worked for more years than the average time spent at
+the company so, the outliers here may not indicate incorrect or
+out-of-range data. Based on this, we keep the data as is, and we report
+the average for that column with the median, from the
+five-number-summary concept, rather than the mean.
+
+## Analyse
+
+Let’s explore the data for some insights and answer Tracy’s questions
+
+``` r
+skim_without_charts(employee_profile_renamed)
+```
+
+|                                                  |                          |
+|:-------------------------------------------------|:-------------------------|
+| Name                                             | employee_profile_renamed |
+| Number of rows                                   | 14999                    |
+| Number of columns                                | 10                       |
+| \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   |                          |
+| Column type frequency:                           |                          |
+| character                                        | 2                        |
+| numeric                                          | 8                        |
+| \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ |                          |
+| Group variables                                  | None                     |
+
+Data summary
+
+**Variable type: character**
+
+| skim_variable | n_missing | complete_rate | min | max | empty | n_unique | whitespace |
+|:--------------|----------:|--------------:|----:|----:|------:|---------:|-----------:|
+| department    |         0 |             1 |   2 |  11 |     0 |       10 |          0 |
+| salary        |         0 |             1 |   3 |   6 |     0 |        3 |          0 |
+
+**Variable type: numeric**
+
+| skim_variable        | n_missing | complete_rate |   mean |    sd |    p0 |    p25 |    p50 |    p75 | p100 |
+|:---------------------|----------:|--------------:|-------:|------:|------:|-------:|-------:|-------:|-----:|
+| satisfaction_level   |         0 |             1 |   0.61 |  0.25 |  0.09 |   0.44 |   0.64 |   0.82 |    1 |
+| last_evaluation      |         0 |             1 |   0.72 |  0.17 |  0.36 |   0.56 |   0.72 |   0.87 |    1 |
+| num_of_projects      |         0 |             1 |   3.80 |  1.23 |  2.00 |   3.00 |   4.00 |   5.00 |    7 |
+| mean_monthly_hours   |         0 |             1 | 201.05 | 49.94 | 96.00 | 156.00 | 200.00 | 245.00 |  310 |
+| tenure               |         0 |             1 |   3.50 |  1.46 |  2.00 |   3.00 |   3.00 |   4.00 |   10 |
+| Work_accident        |         0 |             1 |   0.14 |  0.35 |  0.00 |   0.00 |   0.00 |   0.00 |    1 |
+| left                 |         0 |             1 |   0.24 |  0.43 |  0.00 |   0.00 |   0.00 |   0.00 |    1 |
+| promoted_last_5years |         0 |             1 |   0.02 |  0.14 |  0.00 |   0.00 |   0.00 |   0.00 |    1 |
+
+We can see from here that:
+
+-   Satisfaction level at this company is 0.61 on average, out of a
+    possible 1.0.
+
+-   Also, in the last evaluation exercise, employees scored above 0.7 on
+    average, out of a possible 1.0. Appears good enough.
+
+-   On average, an employee is involved in 4 projects (I am reporting
+    with the median- p50- here because the column contains discrete
+    values).
+
+-   In a month, an employee works for about 201 hours on average.
+
+-   Employees spend at least, 2 years in the company and 3 years on
+    average. However, there are employees that have stuck with the
+    company for as many as 10 years.
+
+    Let’s investigate further.
 
 ``` r
 hr_hist <- employee_profile_renamed %>%
@@ -478,7 +524,7 @@ hist(employee_profile_renamed$last_evaluation,col="#3090C7", main = "Last evalua
 hist(employee_profile_renamed$mean_monthly_hours,col="#3090C7", main = "Average_monthly_hours")
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 ``` r
 hist(employee_profile_renamed$num_of_projects,col="#3090C7", main = "Number_of_projects") 
@@ -486,77 +532,30 @@ hist(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
 hist(employee_profile_renamed$promoted_last_5years, col="#3090C7", main = "Tenure")
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
 
 ``` r
 #hist(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
+#hist(employee_profile_renamed$left,col="#3090C7", main = "exited the company")
 ```
 
-Some columns show marked deviations, e.g, the `average_monthly_hours`
-column. So, there are indications of outliers. But the context of the
-dataset needs to be considered here before labeling extreme values as
-outliers. Looking at the `num_of_projects` column for example, some
-employees may have participated in much more projects than others. Also,
-for the `time_spend_company` or `` ` ``average_monthly_hours\` data, it
-is not out of place for some employees to have worked for far more years
-from the average time spent in the company or that an employee could
-work double the time an employee would work on average so, in the
-context of the dataset and this analysis. in particular, **outliers may
-not mean incorrect data or out-of-range data, especially as there is no
-maximum range set.** Hence, the solution to treating these particular
-set of outliers is not removing them.
+The major highlight in these charts are:
 
--   Also, from the `skim_without_charts` output, the standard deviation
-    results for some columns indicate presence of outliers.
+-   Satisfaction level, last evaluation, Average monthly hours show a
+    near balanced presence of all datapoints in these column and,
+    infact, the avarge_monthly_hours column could pass for a normal
+    distribution.
 
-With the `skim_without_charts()` function, I get a more detailed summary
-of the data, enriched with summary statistics.
+-   
 
 ``` r
-skim_without_charts(employee_profile_data)
+# ggplot(data = employee_profile_renamed) +
+  # geom_boxplot(mapping = aes(x = satisfaction_level, color = 'red'))
 ```
 
-|                                                  |                       |
-|:-------------------------------------------------|:----------------------|
-| Name                                             | employee_profile_data |
-| Number of rows                                   | 14999                 |
-| Number of columns                                | 10                    |
-| \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   |                       |
-| Column type frequency:                           |                       |
-| character                                        | 2                     |
-| numeric                                          | 8                     |
-| \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ |                       |
-| Group variables                                  | None                  |
+### 
 
-Data summary
+Let’s now answer Tracy’s questions and look at other insights obtainable
+from the dataset.
 
-**Variable type: character**
-
-| skim_variable | n_missing | complete_rate | min | max | empty | n_unique | whitespace |
-|:--------------|----------:|--------------:|----:|----:|------:|---------:|-----------:|
-| sales         |         0 |             1 |   2 |  11 |     0 |       10 |          0 |
-| salary        |         0 |             1 |   3 |   6 |     0 |        3 |          0 |
-
-**Variable type: numeric**
-
-| skim_variable         | n_missing | complete_rate |   mean |    sd |    p0 |    p25 |    p50 |    p75 | p100 |
-|:----------------------|----------:|--------------:|-------:|------:|------:|-------:|-------:|-------:|-----:|
-| satisfaction_level    |         0 |             1 |   0.61 |  0.25 |  0.09 |   0.44 |   0.64 |   0.82 |    1 |
-| last_evaluation       |         0 |             1 |   0.72 |  0.17 |  0.36 |   0.56 |   0.72 |   0.87 |    1 |
-| number_project        |         0 |             1 |   3.80 |  1.23 |  2.00 |   3.00 |   4.00 |   5.00 |    7 |
-| average_montly_hours  |         0 |             1 | 201.05 | 49.94 | 96.00 | 156.00 | 200.00 | 245.00 |  310 |
-| time_spend_company    |         0 |             1 |   3.50 |  1.46 |  2.00 |   3.00 |   3.00 |   4.00 |   10 |
-| Work_accident         |         0 |             1 |   0.14 |  0.35 |  0.00 |   0.00 |   0.00 |   0.00 |    1 |
-| left                  |         0 |             1 |   0.24 |  0.43 |  0.00 |   0.00 |   0.00 |   0.00 |    1 |
-| promotion_last_5years |         0 |             1 |   0.02 |  0.14 |  0.00 |   0.00 |   0.00 |   0.00 |    1 |
-
-## Analyse
-
-### EDA
-
-``` r
-ggplot(data = employee_profile_renamed) +
-  geom_boxplot(mapping = aes(x = mean_monthly_hours, color = 'red'))
-```
-
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+-   What is the turnover status from the dataset being examined?
