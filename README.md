@@ -6,4 +6,4 @@ Technology in use: R
 
 
 
-note: This project is still ongoing
+Note: This project is still ongoing
