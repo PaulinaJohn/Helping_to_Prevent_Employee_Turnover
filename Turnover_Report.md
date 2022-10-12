@@ -1,4 +1,4 @@
-**Why might our employees leave?**
+**How might we prevent losing our employees?**
 ================
 
 **Heads up:** *The names, content, and the narrative around the data
@@ -63,9 +63,11 @@ contingent situations to occur.
 
 Tracy had these questions:
 
--   What is the turnover status from the dataset being examined?
+-   What is the attrition rate from the dataset being examined?
 
 -   What are the likely reasons why an employee may leave?
+
+-   What might make an employee stay?
 
 -   What recommendations can guide Qeug in its quest to retain its
     employees?
@@ -465,7 +467,7 @@ As we move on from this stage, we can conclude that:
 
 -   Our clean dataset now has 11,991 rows and 10 columns.
 
--   With 14,999 records, the dataset is enough for this analysis. The
+-   With 11,991 records, the dataset is enough for this analysis. The
     essence of the project is to look at historical data that is also
     external to the company, **Qeug**, so the data is also appropriate
     for the task. Furthermore, it has been stripped of all personally
@@ -535,6 +537,26 @@ We can see from here that:
     average However, there are a few employees who have stuck with the
     company for as many as 10 years.
 
+Let’s answer Tracy’s first question.
+
+What is the turnover rate from the dataset being examined?
+
+``` r
+# turnover_countno <- employee_profile_renamed %>%
+  #filter(left == 0) %>%
+    #summarise(total_count=n())
+
+#turnover_countno <- employee_profile_renamed %>%
+  #filter(left == 1) %>%
+    #summarise(total_count=n())
+
+#total_turnover <- employee_profile_renamed %>%
+  #filter(left) %>%
+    #summarise(total_count=n())
+
+#turnover_countno
+```
+
 ``` r
 hr_hist <- employee_profile_renamed %>%
   par(mfrow=c(1,3))
@@ -549,7 +571,7 @@ hist(employee_profile_renamed$last_evaluation,col="#3090C7", main = "Last evalua
 hist(employee_profile_renamed$mean_monthly_hours,col="#3090C7", main = "Average_monthly_hours")
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 ``` r
 hist(employee_profile_renamed$num_of_projects,col="#3090C7", main = "Number_of_projects") 
@@ -557,24 +579,38 @@ hist(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
 hist(employee_profile_renamed$Work_accident,col="#3090C7", main = "Had an acident at work?")
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
 
 ``` r
 hist(employee_profile_renamed$promoted_last_5years, col="#3090C7", main = "Promotion Status in the Last 5 years")
 hist(employee_profile_renamed$left,col="#3090C7", main = "Exited the company")
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-13-3.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
 
 -   Most of the columns show multimodal distributions that is,
     distributions with more than one peak or mode.
 
 -   More than half of the employees have never had an accident at work.
 
--   Most of the employees have not been promoted in the last 5 years
-    however, majority have remained in the company compared to those who
+-   While most of the employees have not been promoted in the last 5
+    years, majority have remained in the company compared to those who
     have left.
 
     But are these insights enough to tell the entire story?
 
     I proceeded into deep dive analysis.
+
+#### Are employees really satisfied?
+
+``` r
+#ggplot() + geom_bar(aes(y = ..count..,x =as.factor(BUSINESS_UNIT),fill = as.factor(STATUS)),data=MYdataset,position = position_stack())
+```
+
+Earlier, we saw that on average, employees record a satisfaction level
+of 0.62 at the company so, here, I looked at how many employees really
+recorded satisfaction levels above, compared to below this mark.
+
+#### Is the average monthly work hour acceptable?
+
+#### Who works more hours? those who left or those who stayed?
