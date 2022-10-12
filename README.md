@@ -1,3 +1,3 @@
 note: This project is still ongoing
 
-To complete my Google Data Analytics Professional certificate, I embarked on this capstone analytics project to help a hyptotetical 1-month old company, Queg, proactively keep employee turnover at the barest low in order to achieve its quest to grow into a well-established business entity. 
+In completion of my Google Data Analytics Professional Certificate Program, I embarked on this capstone project to help a hypotetical 1-month old company, Queg, proactively keep employee turnover at the barest low in its quest to move from infancy into the league of established business entities. 
