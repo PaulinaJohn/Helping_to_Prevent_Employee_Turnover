@@ -69,8 +69,8 @@ Tracy had these questions:
 
 -   What might make an employee stay?
 
--   What recommendations can guide Qeug in its quest to retain its
-    employees?
+-   What recommendations can guide Qeug in its quest to proactively keep
+    its employees?
 
 ### Executing the project
 
@@ -132,7 +132,6 @@ And, I loaded the packages.
 #install.packages("tidyverse")
 #install.packages("skimr")
 #install.packages("ggplot2")
-#install.packages("Hmisc")
 #install.packages("ggpubr")
 ```
 
@@ -152,24 +151,6 @@ library(tidyverse)
 ``` r
 library(skimr)
 library(ggplot2)
-library(Hmisc)
-```
-
-    ## Loading required package: lattice
-    ## Loading required package: survival
-    ## Loading required package: Formula
-    ## 
-    ## Attaching package: 'Hmisc'
-    ## 
-    ## The following objects are masked from 'package:dplyr':
-    ## 
-    ##     src, summarize
-    ## 
-    ## The following objects are masked from 'package:base':
-    ## 
-    ##     format.pval, units
-
-``` r
 library(ggpubr)
 ```
 
@@ -265,6 +246,47 @@ glimpse(employee_profile_data)
     ## $ sales                 <chr> "sales", "sales", "sales", "sales", "sales", "sa…
     ## $ salary                <chr> "low", "medium", "medium", "low", "low", "low", …
 
+With the `skim_without_charts()` function, I got summary statistics of
+the data.
+
+``` r
+skim_without_charts(employee_profile_data)
+```
+
+|                                                  |                       |
+|:-------------------------------------------------|:----------------------|
+| Name                                             | employee_profile_data |
+| Number of rows                                   | 14999                 |
+| Number of columns                                | 10                    |
+| \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   |                       |
+| Column type frequency:                           |                       |
+| character                                        | 2                     |
+| numeric                                          | 8                     |
+| \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ |                       |
+| Group variables                                  | None                  |
+
+Data summary
+
+**Variable type: character**
+
+| skim_variable | n_missing | complete_rate | min | max | empty | n_unique | whitespace |
+|:--------------|----------:|--------------:|----:|----:|------:|---------:|-----------:|
+| sales         |         0 |             1 |   2 |  11 |     0 |       10 |          0 |
+| salary        |         0 |             1 |   3 |   6 |     0 |        3 |          0 |
+
+**Variable type: numeric**
+
+| skim_variable         | n_missing | complete_rate |   mean |    sd |    p0 |    p25 |    p50 |    p75 | p100 |
+|:----------------------|----------:|--------------:|-------:|------:|------:|-------:|-------:|-------:|-----:|
+| satisfaction_level    |         0 |             1 |   0.61 |  0.25 |  0.09 |   0.44 |   0.64 |   0.82 |    1 |
+| last_evaluation       |         0 |             1 |   0.72 |  0.17 |  0.36 |   0.56 |   0.72 |   0.87 |    1 |
+| number_project        |         0 |             1 |   3.80 |  1.23 |  2.00 |   3.00 |   4.00 |   5.00 |    7 |
+| average_montly_hours  |         0 |             1 | 201.05 | 49.94 | 96.00 | 156.00 | 200.00 | 245.00 |  310 |
+| time_spend_company    |         0 |             1 |   3.50 |  1.46 |  2.00 |   3.00 |   3.00 |   4.00 |   10 |
+| Work_accident         |         0 |             1 |   0.14 |  0.35 |  0.00 |   0.00 |   0.00 |   0.00 |    1 |
+| left                  |         0 |             1 |   0.24 |  0.43 |  0.00 |   0.00 |   0.00 |   0.00 |    1 |
+| promotion_last_5years |         0 |             1 |   0.02 |  0.14 |  0.00 |   0.00 |   0.00 |   0.00 |    1 |
+
 The `colnames()` function provides me a list of the names of the columns
 in the data set.
 
@@ -295,7 +317,7 @@ left the company. The same goes for the `promotion_5years` column. 0
 means that an employee has not been promoted in the last 5 years and 1
 means they have been promoted. So, we can, as well, say that these two
 columns contain categorical data but, encoding them with numbers helps
-us to examine their relationship with columns holding numeric data.
+us to examine their relationship with columns holding numeric data
 
 The `time_spend_company` column could be made shorter and more
 descriptive. The name, `sales`, is inappropriate for the information
@@ -344,7 +366,7 @@ them. I did this by collecting all unique rows into a new dataframe.
 employee_profile_unique <- unique(employee_profile_data)
 ```
 
-Duplicate rows removed!.
+Duplicate rows removed!
 
 #### Addressing Missing Values
 
@@ -385,6 +407,8 @@ colnames(employee_profile_renamed)
     ## [10] "salary"
 
 Changes were effected!
+
+#### Dealing with text data
 
 #### Checking for multiple variants of a categorical value.
 
@@ -449,7 +473,7 @@ boxplot(employee_profile_renamed$num_of_projects,col="#3090C7", main = "Number_o
 boxplot(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 From the boxplots above, we see that there are outliers in the `tenure`
 column. How do we treat this?
@@ -478,8 +502,10 @@ Safe to say our Data ROCCS!
 
 ## Analyse
 
-In this stage, I explored the data for insights and answered Tracy’s
-questions.
+In this stage, I proceeded to answer Tracy’s questions.
+
+Now that our dataset is clean, I began by looking at summary statistics
+again.
 
 ``` r
 skim_without_charts(employee_profile_renamed)
@@ -519,7 +545,18 @@ Data summary
 | left                 |         0 |             1 |   0.17 |  0.37 |  0.00 |   0.00 |   0.00 |   0.00 |    1 |
 | promoted_last_5years |         0 |             1 |   0.02 |  0.13 |  0.00 |   0.00 |   0.00 |   0.00 |    1 |
 
-We can see from here that:
+Comparing the summary statistics we got before we removed duplicates, we
+see that, for example, the average satisfaction level moved from 0.61 to
+0.63 and its 3rd quantile dropped from 0.87 to 0.86. The average for
+mean_monthly_hours moved from 201 to 200 while its standard deviation
+moved from 49.94 to 48.73 and its first quantile moved from 156 to 157.
+The average time spent at the company moved from 3.50 to 3.36 with its
+standard deviation moving from 1.46 to 1.33.
+
+This points us to the importance of removing duplicates from our
+dataset. It improves the integrity of our data.
+
+A number of highlights from this summary:
 
 -   Satisfaction level at this company is 0.62 on average, out of a
     possible 1.0.
@@ -537,69 +574,46 @@ We can see from here that:
     average However, there are a few employees who have stuck with the
     company for as many as 10 years.
 
-Let’s answer Tracy’s first question.
+Looking at Tracy’s questions:
 
-What is the turnover rate from the dataset being examined?
+1.  **What is the turnover rate from the dataset being examined?**
 
-``` r
-# turnover_countno <- employee_profile_renamed %>%
-  #filter(left == 0) %>%
-    #summarise(total_count=n())
+    according to
+    [AIHR](https://www.aihr.com/blog/how-to-calculate-employee-turnover-rate/),
 
-#turnover_countno <- employee_profile_renamed %>%
-  #filter(left == 1) %>%
-    #summarise(total_count=n())
+    Turnover rate = (number of terminates during period/number of
+    employees at beginning of period)
 
-#total_turnover <- employee_profile_renamed %>%
-  #filter(left) %>%
-    #summarise(total_count=n())
+    I will multiply by 100 as I want my answer in percentage.
 
-#turnover_countno
-```
+    While the dataset does not provide the date each employee joined,
+    from our summary statistics above, the least period spent at the
+    company is 2 years. Safe to say there was no new hire within the
+    year. So, we can use the formula above. This formula does not
+    consider new hires as employees
 
-``` r
-hr_hist <- employee_profile_renamed %>%
-  par(mfrow=c(1,3))
-```
-
-    ## Warning in par(., mfrow = c(1, 3)): argument 1 does not name a graphical
-    ## parameter
+    There are other formulas =, like ANSI proposed formula that includes
+    new hires as employees, as shown in this
+    [CFI](https://corporatefinanceinstitute.com/resources/management/employee-turnover-rate/)
+    article
 
 ``` r
-hist(employee_profile_renamed$satisfaction_level,col="#3090C7", main = "Satisfaction level") 
-hist(employee_profile_renamed$last_evaluation,col="#3090C7", main = "Last evaluation")
-hist(employee_profile_renamed$mean_monthly_hours,col="#3090C7", main = "Average_monthly_hours")
+# no of employees who left
+left_num <- employee_profile_renamed %>%
+  filter(left == 1) %>%
+  #group_by(salary) %>%
+  summarise(total_count=n())
+  #summarise_at("mean_monthly_hours", mean)
+
+# total number of employees
+total_num = nrow(employee_profile_renamed)
+
+turnover_rate = (left_num/total_num) * 100
+print(turnover_rate)
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
-
-``` r
-hist(employee_profile_renamed$num_of_projects,col="#3090C7", main = "Number_of_projects") 
-hist(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
-hist(employee_profile_renamed$Work_accident,col="#3090C7", main = "Had an acident at work?")
-```
-
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
-
-``` r
-hist(employee_profile_renamed$promoted_last_5years, col="#3090C7", main = "Promotion Status in the Last 5 years")
-hist(employee_profile_renamed$left,col="#3090C7", main = "Exited the company")
-```
-
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
-
--   Most of the columns show multimodal distributions that is,
-    distributions with more than one peak or mode.
-
--   More than half of the employees have never had an accident at work.
-
--   While most of the employees have not been promoted in the last 5
-    years, majority have remained in the company compared to those who
-    have left.
-
-    But are these insights enough to tell the entire story?
-
-    I proceeded into deep dive analysis.
+    ##   total_count
+    ## 1    16.60412
 
 #### Are employees really satisfied?
 
