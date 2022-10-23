@@ -287,7 +287,7 @@ data <- employee_profile_renamed %>%
 
 ggplot(data, aes(x = "", y = count_left, fill = has_employee_left)) +
   geom_col() + 
-  labs(title= "Percentage of employees who have left and those still at the company", ) +
+  labs(title= "Percentage of employees who have left and those still at the company", caption = "0 = still at the company \t     1 = left") +
   coord_polar(theta = "y") + 
   theme_void()
 ```
@@ -316,7 +316,7 @@ ggplot(cor, aes(x = Var1, y = Var2)) +
    geom_text(aes(label = round(value, 1)))
 ```
 
-There doesn't seem to be much happening here. nearly all the relationships are weak. Either weak positive or weak negative correlation.
+There doesn't seem to be much happening here. nearly all the relationships are weak; either weak positive or weak negative correlation.
 
 #### 2. What are the likely reasons why an employee may leave?
 

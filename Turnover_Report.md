@@ -632,7 +632,7 @@ data <- employee_profile_renamed %>%
 
 ggplot(data, aes(x = "", y = count_left, fill = has_employee_left)) +
   geom_col() + 
-  labs(title= "Percentage of employees who have left and those still at the company", ) +
+  labs(title= "Percentage of employees who have left and those still at the company", caption = "0 = still at the company \t     1 = left") +
   coord_polar(theta = "y") + 
   theme_void()
 ```
