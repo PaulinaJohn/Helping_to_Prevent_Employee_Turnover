@@ -24,7 +24,7 @@ So, according to the HR director, Qeug needs to be intentional about creating a 
 
 Tracy had these questions:
 
--   What is the attrition rate from the dataset being examined?
+-   What is the turnover rate from the dataset being examined?
 
 -   What are the likely reasons why an employee may leave?
 
@@ -70,20 +70,20 @@ And, I loaded the packages.
 #install.packages("tidyverse")
 #install.packages("skimr")
 #install.packages("ggplot2")
-#install.packages("ggpubr")
+#install.packages("reshape2")
 ```
 
 ```{r loading installed packages}
 library(tidyverse)
 library(skimr)
 library(ggplot2)
-library(ggpubr)
+library(reshape2)
 ```
 
 I then moved on to load the data set.
 
 ```{r loading in my dataset}
-employee_profile_data <- read_csv("~/R_project_files/Track2- GooogleDAcapstoneproject/First_HR_Analytics_Project/employee_profile_data.csv")
+employee_profile_data <- read_csv("C:/Users/Paulina/Git_files/my_Git_repos/HRAnalyticsProject/employee_profile_data.csv")
 ```
 
 #### Getting to know the data
@@ -253,31 +253,80 @@ A number of highlights from this summary:
 
 Looking at Tracy's questions:
 
-1.  **What is the turnover rate from the dataset being examined?**
+1.  **What percentage of the employees have left?**
 
-    according to [AIHR](https://www.aihr.com/blog/how-to-calculate-employee-turnover-rate/),
+    According to [AIHR](https://www.aihr.com/blog/how-to-calculate-employee-turnover-rate/),
 
     Turnover rate = (number of terminates during period/number of employees at beginning of period)
 
-    I will multiply by 100 as I want my answer in percentage.
+    This formula does not consider new hires as employees. The [AIHR](https://www.aihr.com/blog/how-to-calculate-employee-turnover-rate/) has a strong argument in favor of excluding new hires when calculating employee turnover. The dataset itself, also does not provide any information about new employees joining at any point. Infact, the least time spent at the company is 2 years. So, the above formula was appropriate.
 
-    While the dataset does not provide the date each employee joined, from our summary statistics above, the least period spent at the company is 2 years. Safe to say there was no new hire within the year. So, we can use the formula above. This formula does not consider new hires as employees
-
-    There are other formulas =, like ANSI proposed formula that includes new hires as employees, as shown in this [CFI](https://corporatefinanceinstitute.com/resources/management/employee-turnover-rate/) article
+    Note: There are other formulas =, like the ANSI proposed formula that includes new hires as employees, as shown in this [CFI](https://corporatefinanceinstitute.com/resources/management/employee-turnover-rate/) article.
 
 ```{r}
 # no of employees who left
 left_num <- employee_profile_renamed %>%
   filter(left == 1) %>%
-  #group_by(salary) %>%
-  summarise(total_count=n())
-  #summarise_at("mean_monthly_hours", mean)
+  summarise(left_prop=n())
 
 # total number of employees
 total_num = nrow(employee_profile_renamed)
 
-turnover_rate = (left_num/total_num) * 100
+turnover_rate = round(((left_num/total_num) * 100), 2)
 print(turnover_rate)
+```
+
+16.6% of the employees have left the company.
+
+I looked at the proportion of employees who left compared to those who haven't.
+
+```{r}
+data <- employee_profile_renamed %>%
+  group_by(has_employee_left = as.character(left)) %>%
+  summarise(count_left = n())
+
+ggplot(data, aes(x = "", y = count_left, fill = has_employee_left)) +
+  geom_col() + 
+  labs(title= "Percentage of employees who have left and those still at the company", ) +
+  coord_polar(theta = "y") + 
+  theme_void()
+```
+
+I proceeded to look at the relationships between variables in the dataset. The relationship between Salary and other variables is an interesting one I wanted to see but, it was in character type. We can only compare relationships between numeric variables.
+
+So, I converted this column to numeric by assigning numbers incrementally to each category of values represented in the column.
+
+```{r}
+employee_profile_recoded <- employee_profile_renamed %>%
+   mutate(salary = as.numeric(recode(salary, low = '1', 'medium' = '2', 'high' = '3')))
+
+head(employee_profile_recoded)
+```
+
+Then I checked the relationships between columns using a heatmap. Note that to create a heatmap in ggplot2, you need long data, as opposed to wide data format. This is where the melt function from the `reshape` package comes in.
+
+```{r}
+cor <- melt(cor(employee_profile_recoded[sapply(employee_profile_recoded,is.numeric)]))
+
+#options(repr.plot.width = 20, repr.plot.height = 10)
+ggplot(cor, aes(x = Var1, y = Var2)) +
+  geom_tile(aes(fill = value)) +
+  scale_fill_gradient(low = "yellow", high = "black") +
+  theme(axis.text.x.bottom = element_text(angle = 45, hjust = 1)) +
+   geom_text(aes(label = round(value, 1)))
+```
+
+There doesn't seem to be much happening here. nearly all the relationships are weak. Either weak positive or weak negative correlation.
+
+#### 2. What are the likely reasons why an employee may leave?
+
+I examined data for only those who have left
+
+```{r collecting data for only employees who have left into another dataframe}
+employees_left_only <- employee_profile_recoded %>%
+  filter(left == 1)
+
+nrow(employees_left_only)
 ```
 
 #### Are employees really satisfied?
