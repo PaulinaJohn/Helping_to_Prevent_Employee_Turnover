@@ -725,8 +725,9 @@ hours
 
 ``` r
 ggplot(hours, aes(x = has_employee_left, y = average_hours)) + 
-  geom_bar(stat = 'identity', fill = 'purple') +
-  labs(title="Who works more hours?")
+  geom_bar(stat = 'identity', fill = 'aquamarine') +
+  labs(title="Who works more hours?") + 
+  theme_dark()
 ```
 
 ![](Turnover_Report_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
@@ -736,7 +737,7 @@ than their counterparts who remained at the company.
 
 ``` r
 ggplot(employee_profile_renamed, aes(x = mean_monthly_hours)) +
-  geom_histogram(fill = 'pink') +
+  geom_histogram(fill = 'hot pink') +
   facet_wrap(~as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) +
   theme(axis.text.x = element_text(angle = 45)) +
   labs(title="Distribution of monthly hours of employees who remained at the \n company and those who left") + 
