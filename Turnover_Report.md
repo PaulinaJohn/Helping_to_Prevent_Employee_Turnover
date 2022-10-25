@@ -737,7 +737,7 @@ than their counterparts who remained at the company.
 
 ``` r
 ggplot(employee_profile_renamed, aes(x = mean_monthly_hours)) +
-  geom_histogram(fill = 'hot pink') +
+  geom_histogram(fill = 'pink') +
   facet_wrap(~as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) +
   theme(axis.text.x = element_text(angle = 45)) +
   labs(title="Distribution of monthly hours of employees who remained at the \n company and those who left") + 
