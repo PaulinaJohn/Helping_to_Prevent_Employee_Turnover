@@ -688,20 +688,20 @@ ggplot(cor, aes(x = Var1, y = Var2)) +
 
 ![](Turnover_Report_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
-There doesn’t seem to be much happening here. nearly all the
-relationships are weak; either weak positive or weak negative
-correlation.
+It appears not much is happening here. nearly all the relationships are
+weak; either weak positive or weak negative correlation.
 
-However, a highlight here is how salary show little to no correlation
+However, a highlight here is how salary shows little to no correlation
 with any of the other variables. This could mean that working more
 hours, taking up more projects, pulling a high score in the most recent
-evaluation exercise, recording a high satisfaction level, or spending
-more years at the company does not necessarily translate into a higher
-salary.
+evaluation exercise, or remaining with the company for longer, does not
+necessarily translate into a higher salary.
 
 Could this be an indication that time commitment, or length of service
 is not rewarded at this company? or maybe the reward for any of these is
 not a raise?
+
+Remember, correlation does not always imply causation.
 
 I examined the dataset more closely.
 
@@ -725,15 +725,14 @@ hours
 
 ``` r
 ggplot(hours, aes(x = has_employee_left, y = average_hours)) + 
-  geom_bar(stat = 'identity', fill = 'aquamarine') +
-  labs(title="Who works more hours?") + 
-  theme_dark()
+  geom_bar(stat = 'identity', fill = 'purple') +
+  labs(title="Who works more hours?") 
 ```
 
 ![](Turnover_Report_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
-Hmmn! Looks like, on average, those employees who left work more hours
-than their counterparts who remained at the company.
+Hmmn. Looks like, on average, those employees who left work slightly
+more hours than their counterparts who remained at the company.
 
 ``` r
 ggplot(employee_profile_renamed, aes(x = mean_monthly_hours)) +
@@ -748,8 +747,24 @@ ggplot(employee_profile_renamed, aes(x = mean_monthly_hours)) +
 
 ![](Turnover_Report_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
-I proceeded to look the data separately, for employees who have left and
-those who haven’t, and to answer Tracy’s second question.
+The focus here is not the height of the bins, but the spread.
+
+The summary statistics I looked at earlier, after cleaning was done, had
+hinted that some employees work for as long as 310 hours in a month.
+This histogram reveals that nearly, if not all of those employees who
+work for that long, are those who have left. From the chart, we can see
+that no employee who is still at the company work for to 300 hours.
+Another interesting insight here is that, while there are retained
+employees who worked for less than 100 hours in a month, none of the
+employees who left had that leisure. The least mean_monthly_hours for
+terminates in a month was above 100 hours.
+
+Could the employees who left have done so because they had to work
+longer hours than others?
+
+Combined with insights from the bar chart, these are strong indications
+that working for longer hours especially when compared to that of fellow
+employees, may have contributed to these employees leaving.
 
 ``` r
 # collecting data for only employees who have left into another dataframe
@@ -757,6 +772,26 @@ those who haven’t, and to answer Tracy’s second question.
 employees_left_only <- employee_profile_recoded %>%
   filter(left == 1)
 ```
+
+**Which group of employees are more satisfied?**
+
+From our summary statistics, a satisfaction level of 0.62 appears to be
+fair. But let’s see if this score is so across board or if it tilts
+towards either the retainees or terminates.
+
+``` r
+satisfaction <- employee_profile_renamed %>% 
+  group_by(has_employee_left = as.factor(recode(left, '0' = 'No', '1' = 'Yes'))) %>%
+  summarise(satisfaction = mean(satisfaction_level))
+
+satisfaction
+```
+
+    ## # A tibble: 2 × 2
+    ##   has_employee_left satisfaction
+    ##   <fct>                    <dbl>
+    ## 1 No                       0.667
+    ## 2 Yes                      0.440
 
 I began by looking at relationships between variables for employees who
 have left
