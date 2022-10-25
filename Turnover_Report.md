@@ -581,14 +581,14 @@ A number of highlights from this summary:
     average However, there are a few employees who have stuck with the
     company for as many as 10 years.
 
-Looking at Tracy’s questions:
+Looking at Tracy’s question
 
-1.  **What percentage of the employees have left?**
+#### 1. What is the turnover rate from the dataset being examined?
 
-    According to
-    [AIHR](https://www.aihr.com/blog/how-to-calculate-employee-turnover-rate/),
+According to the
+[AIHR](https://www.aihr.com/blog/how-to-calculate-employee-turnover-rate/),
 
-    Turnover rate = (number of terminates during period/number of
+1.  Turnover rate = (number of terminates during period/number of
     employees at beginning of period)
 
     This formula does not consider new hires as employees. The
@@ -620,10 +620,11 @@ print(turnover_rate)
     ##   left_prop
     ## 1      16.6
 
-16.6% of the employees have left the company.
+The turnover rate is 16.6% . This means that 16.6% of the employees have
+left the company.
 
-I looked at the proportion of employees who left compared to those who
-haven’t.
+In addition, I visualized the proportion of employees who left compared
+to those who haven’t.
 
 ``` r
 data <- employee_profile_renamed %>%
@@ -639,10 +640,13 @@ ggplot(data, aes(x = "", y = count_left, fill = has_employee_left)) +
 
 ![](Turnover_Report_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
-I proceeded to look at the relationships between variables in the
-dataset. The relationship between Salary and other variables is an
-interesting one I wanted to see but, it was in character type. We can
-only compare relationships between numeric variables.
+#### 2. What are the likely reasons why an employee may leave?
+
+I began to answer this question by looking at the relationships between
+variables in the dataset. The relationship between salary and other
+variables is an interesting one I wanted to see but, the salary column
+was in character type. We can only compare relationships between numeric
+variables.
 
 So, I converted this column to numeric by assigning numbers
 incrementally to each category of values represented in the column.
@@ -667,51 +671,98 @@ head(employee_profile_recoded)
     ## #   ³​num_of_projects, ⁴​mean_monthly_hours, ⁵​Work_accident,
     ## #   ⁶​promoted_last_5years, ⁷​department
 
-Then I checked the relationships between columns using a heatmap. Note
-that to create a heatmap in ggplot2, you need long data, as opposed to
-wide data format. This is where the melt function from the `reshape`
-package comes in.
+Then I checked the nature of relationship between columns using a
+heatmap. Note that to create a heatmap in ggplot2, you need long data,
+as opposed to wide data format. This is where the `melt` function from
+the `reshape` package comes in.
 
 ``` r
 cor <- melt(cor(employee_profile_recoded[sapply(employee_profile_recoded,is.numeric)]))
 
-#options(repr.plot.width = 20, repr.plot.height = 10)
-ggplot(cor, aes(x = Var1, y = Var2)) +
-  geom_tile(aes(fill = value)) +
+ggplot(cor, aes(x = Var1, y = Var2)) + 
+  geom_tile(aes(fill = value)) + 
   scale_fill_gradient(low = "yellow", high = "black") +
   theme(axis.text.x.bottom = element_text(angle = 45, hjust = 1)) +
-   geom_text(aes(label = round(value, 1)))
+  geom_text(aes(label = round(value, 1)))
 ```
 
 ![](Turnover_Report_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 There doesn’t seem to be much happening here. nearly all the
-relationships are weak. Either weak positive or weak negative
+relationships are weak; either weak positive or weak negative
 correlation.
 
-#### 2. What are the likely reasons why an employee may leave?
+However, a highlight here is how salary show little to no correlation
+with any of the other variables. This could mean that working more
+hours, taking up more projects, pulling a high in the last evaluation,
+recording high satisfaction levels, or spending more years at the
+company does not necessarily translate into a higher salary.
 
-I examined data for only those who have left
+Could this be an indication that time commitment, or length of service
+is not rewarded at this company? or maybe the reward for any of these is
+not a raise?
+
+I examined the dataset more closely.
+
+**Who works more hours?**
+
+Those who have left or those still at the company?
 
 ``` r
+hours <- employee_profile_renamed %>% 
+  group_by(has_employee_left = as.character(left)) %>%
+  summarise(average_hours = mean(mean_monthly_hours))
+
+hours
+```
+
+    ## # A tibble: 2 × 2
+    ##   has_employee_left average_hours
+    ##   <chr>                     <dbl>
+    ## 1 0                          199.
+    ## 2 1                          208.
+
+``` r
+ggplot(hours) +
+  geom_col(mapping = aes(x = has_employee_left, y = average_hours)) +
+  labs(title="Who works more hours?")
+```
+
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+
+Hmmn! Looks like, on average, those employees who left work more hours
+than their counterparts who remained at the company.
+
+``` r
+ggplot(data = employee_profile_renamed) +
+  geom_histogram(mapping = aes(x = mean_monthly_hours)) +
+  facet_wrap(~left) +
+  theme(axis.text.x = element_text(angle = 45)) +
+  labs(title="Distribution of monthly hours of employees who remained at the company and those who left",
+       caption=paste0("0 = still at the company, 1 = has left"))
+```
+
+    ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
+I proceeded to look the data separately, for employees who have left and
+those who haven’t, and to answer Tracy’s second question.
+
+``` r
+# collecting data for only employees who have left into another dataframe
+
 employees_left_only <- employee_profile_recoded %>%
   filter(left == 1)
-
-nrow(employees_left_only)
 ```
 
-    ## [1] 1991
+I began by looking at relationships between variables for employees who
+have left
 
 #### Are employees really satisfied?
-
-``` r
-#ggplot() + geom_bar(aes(y = ..count..,x =as.factor(BUSINESS_UNIT),fill = as.factor(STATUS)),data=MYdataset,position = position_stack())
-```
 
 Earlier, we saw that on average, employees record a satisfaction level
 of 0.62 at the company so, here, I looked at how many employees really
 recorded satisfaction levels above, compared to below this mark.
 
 #### Is the average monthly work hour acceptable?
-
-#### Who works more hours? those who left or those who stayed?
