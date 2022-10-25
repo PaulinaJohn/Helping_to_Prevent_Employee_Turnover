@@ -628,12 +628,12 @@ to those who haven’t.
 
 ``` r
 data <- employee_profile_renamed %>%
-  group_by(has_employee_left = as.character(left)) %>%
+  group_by(has_employee_left = as.factor(recode(left, '0' = 'No', '1' = 'Yes'))) %>%
   summarise(count_left = n())
 
 ggplot(data, aes(x = "", y = count_left, fill = has_employee_left)) +
   geom_col() + 
-  labs(title= "Percentage of employees who have left and those still at the company", caption = "0 = still at the company \t     1 = left") +
+  labs(title= "Percentage of employees who have left and those still at the company") +
   coord_polar(theta = "y") + 
   theme_void()
 ```
@@ -711,7 +711,7 @@ Those who have left or those still at the company?
 
 ``` r
 hours <- employee_profile_renamed %>% 
-  group_by(has_employee_left = as.character(left)) %>%
+  group_by(has_employee_left = as.factor(recode(left, '0' = 'No', '1' = 'Yes'))) %>%
   summarise(average_hours = mean(mean_monthly_hours))
 
 hours
@@ -719,9 +719,9 @@ hours
 
     ## # A tibble: 2 × 2
     ##   has_employee_left average_hours
-    ##   <chr>                     <dbl>
-    ## 1 0                          199.
-    ## 2 1                          208.
+    ##   <fct>                     <dbl>
+    ## 1 No                         199.
+    ## 2 Yes                        208.
 
 ``` r
 ggplot(hours) +
@@ -737,10 +737,9 @@ than their counterparts who remained at the company.
 ``` r
 ggplot(data = employee_profile_renamed) +
   geom_histogram(mapping = aes(x = mean_monthly_hours)) +
-  facet_wrap(~left) +
+  facet_wrap(~as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) +
   theme(axis.text.x = element_text(angle = 45)) +
-  labs(title="Distribution of monthly hours of employees who remained at the company and those who left",
-       caption=paste0("0 = still at the company, 1 = has left"))
+  labs(title="Distribution of monthly hours of employees who remained at the \n company and those who left")
 ```
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
