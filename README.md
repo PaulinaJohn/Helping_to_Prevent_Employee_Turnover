@@ -1,6 +1,6 @@
-## How might Qeug, a company at infancy, proactively prevent losing its employees?
+## How might Qeug Solutions prevent losing its employees?
 
-In completion of my Google Data Analytics Professional Certificate Program, I embarked on this capstone project to help a hypothetical 1-month old company, Qeug (a product of my imagination), proactively keep employee turnover at the barest minimum in its quest to achieve steady growth from infancy into the league of established business entities.
+In completion of my Google Data Analytics Professional Certificate Program, I embarked on this capstone project to help a hypothetical 1-month old company, Qeug Solutions (a product of my imagination), proactively keep employee turnover at the barest minimum in its quest to achieve steady growth from infancy into the league of established business entities.
 
 Technology in use: R
 
