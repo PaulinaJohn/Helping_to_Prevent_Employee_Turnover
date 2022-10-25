@@ -792,14 +792,3 @@ satisfaction
     ##   <fct>                    <dbl>
     ## 1 No                       0.667
     ## 2 Yes                      0.440
-
-I began by looking at relationships between variables for employees who
-have left
-
-#### Are employees really satisfied?
-
-Earlier, we saw that on average, employees record a satisfaction level
-of 0.62 at the company so, here, I looked at how many employees really
-recorded satisfaction levels above, compared to below this mark.
-
-#### Is the average monthly work hour acceptable?
