@@ -694,9 +694,10 @@ correlation.
 
 However, a highlight here is how salary show little to no correlation
 with any of the other variables. This could mean that working more
-hours, taking up more projects, pulling a high in the last evaluation,
-recording high satisfaction levels, or spending more years at the
-company does not necessarily translate into a higher salary.
+hours, taking up more projects, pulling a high score in the most recent
+evaluation exercise, recording a high satisfaction level, or spending
+more years at the company does not necessarily translate into a higher
+salary.
 
 Could this be an indication that time commitment, or length of service
 is not rewarded at this company? or maybe the reward for any of these is
