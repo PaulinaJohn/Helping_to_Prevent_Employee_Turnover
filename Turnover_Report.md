@@ -69,6 +69,8 @@ Tracy had these questions:
 -   Why might an employee may leave, and what characterises those who
     stay?
 
+-   Which department was worst hit by the turnover and why?
+
 -   From the analysis done, what recommendations can guide Qeug in its
     quest to proactively keep its employees?
 
@@ -741,8 +743,8 @@ Note: I did not use count or, say, proportion of entire employees
 because the number of retainees far outweighs terminates. There are over
 5 times more retainees than terminates, so using any of these statistics
 would not provide a fair and accurate comparison. Also note that the
-figures will not yield a total percentage of 100% as they do not share
-the same denominator.
+figures below will not yield a total percentage of 100% as they do not
+share the same denominator.
 
 ``` r
 satisfaction_count = employee_profile_renamed %>%
@@ -753,14 +755,8 @@ satisfaction_count = employee_profile_renamed %>%
 sat_prop_left <- (satisfaction_count$number/emp_prop$count_left) *100  #remember emp_prop from the pie chart
   
   
-as.tibble(sat_prop_left)
+as_tibble(sat_prop_left)
 ```
-
-    ## Warning: `as.tibble()` was deprecated in tibble 2.0.0.
-    ## Please use `as_tibble()` instead.
-    ## The signature and semantics have changed, see `?as_tibble`.
-    ## This warning is displayed once every 8 hours.
-    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.
 
     ## # A tibble: 2 × 1
     ##   value
@@ -770,6 +766,8 @@ as.tibble(sat_prop_left)
 
 We see here that while over 60% of retainees are satisfied, only about
 27% of those who left were satisfied on the job.
+
+**Were employees working longer hours?**
 
 ``` r
 hours <- employee_profile_renamed %>% 
@@ -788,7 +786,7 @@ hours
 ``` r
 ggplot(hours, aes(x = has_employee_left, y = average_hours)) + 
   geom_bar(stat = 'identity', fill = 'purple') +
-  labs(title="Who works more hours?") 
+  labs(title="Who worked more hours?") 
 ```
 
 ![](Turnover_Report_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
