@@ -1,4 +1,4 @@
-**How might we prevent losing our employees?**
+**How might Qeug Solutions prevent losing its employees??**
 ================
 
 **Heads up:** *The names, content, and the narrative around the data
@@ -29,37 +29,38 @@ different business functions using data and Business intelligence
 technologies. Although I only joined the team 6 months ago, the People
 Analytics unit Manager, Clara Michael, who is also my boss, believes I
 am ready to take up bigger challenges and had asked me to lead a project
-for a new client, **Qeug**.
+for a new client, **Qeug** **Solutions.**
 
-***About Qeug***
+***About Qeug Solutions***
 
-Qeug provides training and counseling services to young immigrants
-looking to settle in a new country anywhere, land a job early enough,
-and continue to get personal and career guidance for, at least, a year
-into their first job.
+Qeug Solutions; **Qeug**, for short, provides training and counseling
+services to young immigrants looking to settle in a new country
+anywhere, land a job early enough, and continue to get personal and
+career guidance for, at least, a year into their first job.
 
 Qeug is young, only in its first month of operation. However, the CEO
-believes he is building a company that has come to stay. He had shared
-this vision with the HR Director, Tracy Victor upon her coming on board,
-with the later counseling that, as Qeug renders a
-human-to-human-interaction-based service, it needs its best hands on the
-job for as long as possible, especially as it wades through its infancy
-stage. For example, a customer might have gotten used to an employee in
-a counseling role and they may not be pleased starting all over with a
-new employee. Qeug cannot afford to lose any of its customers at this
-early stage too.
+believes he is building a company that has come to stay, and part of his
+objectives is to keep his employees for at least, 5 years, with the
+company. He had shared this vision with the HR Director, Tracy Victor
+upon her coming on board, with the later counseling that, as Qeug
+renders a human-to-human-interaction-based service, it needs its best
+hands on the job for as long as possible, especially as it wades through
+its infancy stage. For example, a customer might have gotten used to an
+employee in a counseling role and they may not be pleased starting all
+over with a new employee. Qeug cannot afford to lose any of its
+customers at this early stage too.
 
 So, according to the HR director, Qeug needs to be intentional about
 creating a good place to work for its employees so they can stick around
 long enough to continue to help its clients navigate their way to
-success and comfort in a new country. It believes that, to get on a good
-path towards achieving this, the company can begin with getting a
-generic view of likely reasons why employees may leave, as a guide in
-sketching and implementing evolve-able preventive policies early on.
-Alongside this, they can use the insights generated to spot factors
-similar or peculiar to Qeug’s situation as they accumulate more internal
-data towards their first end-of-year analysis, rather than wait for
-contingent situations to occur.
+success and comfort in a new country. She believes that, to get on a
+good path towards achieving this, the company can begin with using
+external data to get a high-level view of likely reasons why employees
+may leave, as a guide in sketching and implementing evolve-able
+preventive policies early on. Alongside this, they can use the insights
+generated to spot factors similar to Qeug’s employee profile while the
+company accumulates more internal data towards its first end-of-year
+analysis.
 
 Tracy had these questions:
 
@@ -80,8 +81,8 @@ Program](https://www.coursera.org/professional-certificates/google-data-analytic
 I have taken a liking to applying it in my projects as it helps for
 **structured thinking**. While there are other variations of the
 process, like the EMC data analytics life-cycle, the SAS data analytics
-life-cycle, the big data analytics…, etc., I used the Google Data
-analytics process as my guide in this project. It includes the
+life-cycle, the big data analytics, etc., I used the Google Data
+analytics process as my guide in this project. It consists of the
 **Ask**-**Prepare**-**Process**-**Analyze**-**Share**-**Act** phases.
 
 ## **Ask:**
@@ -594,10 +595,10 @@ According to the
     This formula does not consider new hires as employees. The
     [AIHR](https://www.aihr.com/blog/how-to-calculate-employee-turnover-rate/)
     has a strong argument in favor of excluding new hires when
-    calculating employee turnover. The dataset itself, also does not
-    provide any information about new employees joining at any point.
-    Infact, the least time spent at the company is 2 years. So, the
-    above formula was appropriate.
+    calculating employee turnover. Also, the dataset does not provide
+    any information about new employees joining at any point. Infact,
+    the least time spent at the company is 2 years. So, the above
+    formula was appropriate.
 
     Note: There are other formulas =, like the ANSI proposed formula
     that includes new hires as employees, as shown in this
@@ -634,7 +635,7 @@ data <- employee_profile_renamed %>%
 ggplot(data, aes(x = "", y = count_left, fill = has_employee_left)) +
   geom_col() + 
   labs(title= "Percentage of employees who have left and those still at the company") +
-  coord_polar(theta = "y") + 
+  coord_polar(theta = "y") +   # there is no pie_chart function in ggplot2, hence the coord_polar feature is needed to help us curve a bar or column chart into a pie
   theme_void()
 ```
 
@@ -695,7 +696,7 @@ However, a highlight here is how salary shows little to no correlation
 with any of the other variables. This could mean that working more
 hours, taking up more projects, pulling a high score in the most recent
 evaluation exercise, or remaining with the company for longer, does not
-necessarily translate into a higher salary.
+necessarily attract a raise or a higher salary.
 
 Could this be an indication that time commitment, or length of service
 is not rewarded at this company? or maybe the reward for any of these is
@@ -705,7 +706,7 @@ Remember, correlation does not always imply causation.
 
 I examined the dataset more closely.
 
-**Who works more hours?**
+**Did the terminates more hours while on the job?**
 
 Those who have left or those still at the company?
 
