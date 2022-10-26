@@ -26,11 +26,11 @@ Tracy had these questions:
 
 -   What is the turnover rate from the dataset being examined?
 
--   What are the likely reasons why an employee may leave?
+-   Why might an employee may leave, and what characterises those who stay?
 
--   What might make an employee stay?
+-   Which department was worst hit by the turnover and why?
 
--   What recommendations can guide Qeug in its quest to proactively keep its employees?
+-   From the analysis done, what recommendations can guide Qeug in its quest to proactively keep its employees?
 
 ### Executing the project
 
@@ -281,20 +281,22 @@ The turnover rate is 16.6% . This means that 16.6% of the employees have left th
 In addition, I visualized the proportion of employees who left compared to those who haven't.
 
 ```{r}
-data <- employee_profile_renamed %>%
+emp_prop <- employee_profile_renamed %>%
   group_by(has_employee_left = as.factor(recode(left, '0' = 'No', '1' = 'Yes'))) %>%
   summarise(count_left = n())
 
-ggplot(data, aes(x = "", y = count_left, fill = has_employee_left)) +
+ggplot(emp_prop, aes(x = "", y = count_left, fill = has_employee_left)) +
   geom_col() + 
-  labs(title= "Percentage of employees who have left and those still at the company") +
+  labs(title= "Proportion of employees who have left and those still at the company") +
   coord_polar(theta = "y") +   # there is no pie_chart function in ggplot2, hence the coord_polar feature is needed to help us curve a bar or column chart into a pie
   theme_void()
 ```
 
-#### 2. What are the likely reasons why an employee may leave?
+#### 2. Why might an employee may leave, and what characterises those who stay?
 
-I began to answer this question by looking at the relationships between variables in the dataset. The relationship between salary and other variables is an interesting one I wanted to see but, the salary column was in character type. We can only compare relationships between numeric variables.
+I put two questions in one here because it will be difficult to consider the conditions that made terminates leave without a corresponding look at what the environment might be for those still at the company.
+
+I began answering this question by looking at the relationships between variables in the dataset. The relationship between salary and other variables is an interesting one I wanted to see but, the salary column was in character type. We can only compare relationships between numeric variables.
 
 So, I converted this column to numeric by assigning numbers incrementally to each category of values represented in the column.
 
@@ -317,19 +319,49 @@ ggplot(cor, aes(x = Var1, y = Var2)) +
   geom_text(aes(label = round(value, 1)))
 ```
 
-It appears not much is happening here. nearly all the relationships are weak; either weak positive or weak negative correlation.
+It appears not much is happening here. Between most of the variables, there is either no correlation or the relationship is weak; weak positive or weak negative.
 
-However, a highlight here is how salary shows little to no correlation with any of the other variables. This could mean that working more hours, taking up more projects, pulling a high score in the most recent evaluation exercise, or remaining with the company for longer, does not necessarily attract a raise or a higher salary.
+However, an insight to see here is how salary shows little to no correlation with any of the other variables. This could mean that working more hours, taking up more projects, pulling a high score in the most recent evaluation exercise, or remaining with the company for longer, may not necessarily attract a raise or a higher salary.
 
-Could this be an indication that time commitment, or length of service is not rewarded at this company? or maybe the reward for any of these is not a raise?
+Could this be an indication that time commitment, or length of service, for example, is not rewarded at this company? or maybe the reward for any of these is not a raise?
 
 Remember, correlation does not always imply causation.
 
-I examined the dataset more closely.
+Moving on, I wanted to see through the fields in the dataset, what characterised a terminate's time at the company, compared to that of an employee who is still at the company
 
-**Did the terminates more hours while on the job?**
+**Were terminates satisfied?**
 
-Those who have left or those still at the company?
+From our summary statistics, the average satisfaction level is 0.62. While this looks moderate, is this so, or close to so, across board?
+
+```{r}
+satisfaction_df <- employee_profile_renamed %>% 
+  group_by(has_employee_left = as.factor(recode(left, '0' = 'No', '1' = 'Yes'))) %>%
+  summarise(satisfaction = mean(satisfaction_level))
+
+satisfaction_df
+```
+
+We can see that, satisfaction level for a terminate was below average while an employee still at the company exceeded it.
+
+I went ahead to look at what proportion of the terminates and retainees reached or surpassed the average satisfaction level.
+
+Note: I did not use count or, say, proportion of entire employees because the number of retainees far outweighs terminates. There are over 5 times more retainees than terminates, so using any of these statistics would not provide a fair and accurate comparison. Also note that the figures below will not yield a total percentage of 100% as they do not share the same denominator.
+
+```{r}
+satisfaction_count = employee_profile_renamed %>%
+  filter(satisfaction_level >= 0.62) %>%
+  group_by(has_employee_left = as.factor(recode(left, '0' = 'No', '1' = 'Yes'))) %>%
+  summarise(number = n())
+
+sat_prop_left <- (satisfaction_count$number/emp_prop$count_left) *100  #remember emp_prop from the pie chart
+  
+  
+as_tibble(sat_prop_left)
+```
+
+We see here that while over 60% of retainees are satisfied, only about 27% of those who left were satisfied on the job.
+
+**Were employees working longer hours?**
 
 ```{r}
 hours <- employee_profile_renamed %>% 
@@ -342,7 +374,7 @@ hours
 ```{r}
 ggplot(hours, aes(x = has_employee_left, y = average_hours)) + 
   geom_bar(stat = 'identity', fill = 'purple') +
-  labs(title="Who works more hours?") 
+  labs(title="Who worked more hours?") 
 ```
 
 Hmmn. Looks like, on average, those employees who left work slightly more hours than their counterparts who remained at the company.
@@ -358,27 +390,10 @@ ggplot(employee_profile_renamed, aes(x = mean_monthly_hours)) +
 
 The focus here is not the height of the bins, but the spread.
 
-The summary statistics I looked at earlier, after cleaning was done, had hinted that some employees work for as long as 310 hours in a month. This histogram reveals that nearly, if not all of those employees who work for that long, are those who have left. From the chart, we can see that no employee who is still at the company work for to 300 hours. Another interesting insight here is that, while there are retained employees who worked for less than 100 hours in a month, none of the employees who left had that leisure. The least mean_monthly_hours for terminates in a month was above 100 hours.
+The summary statistics I looked at earlier, after cleaning was done, had hinted that some employees work for as long as 310 hours in a month. This histogram reveals that nearly, if not all of those employees who work for that long, are those who have left. From the chart, we can see that no employee who is still at the company work for to 300 hours.
+
+Another interesting insight here is that, while there are retained employees who worked for less than 100 hours in a month, none of the employees who left had that leisure. The least mean_monthly_hours for terminates in a month was above 100 hours.
 
 Could the employees who left have done so because they had to work longer hours than others?
 
-Combined with insights from the bar chart, these are strong indications that working for longer hours especially when compared to that of fellow employees, may have contributed to these employees leaving.
-
-```{r}
-# collecting data for only employees who have left into another dataframe
-
-employees_left_only <- employee_profile_recoded %>%
-  filter(left == 1)
-```
-
-**Which group of employees are more satisfied?**
-
-From our summary statistics, a satisfaction level of 0.62 appears to be fair. But let's see if this score is so across board or if it tilts towards either the retainees or terminates.
-
-```{r}
-satisfaction <- employee_profile_renamed %>% 
-  group_by(has_employee_left = as.factor(recode(left, '0' = 'No', '1' = 'Yes'))) %>%
-  summarise(satisfaction = mean(satisfaction_level))
-
-satisfaction
-```
+Combined with insights from the bar chart, these are indications that working for longer hours especially when compared to that of fellow employees, may have contributed to these employees leaving.
