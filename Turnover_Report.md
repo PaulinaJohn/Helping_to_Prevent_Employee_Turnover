@@ -66,8 +66,7 @@ Tracy had these questions:
 
 -   What is the turnover rate from the dataset being examined?
 
--   Why might an employee may leave, and what characterises those who
-    stay?
+-   Why might an employee leave, and what characterises those who stay?
 
 -   Which department was worst hit by the turnover and why?
 
@@ -632,7 +631,6 @@ to those who haven’t.
 emp_prop <- employee_profile_renamed %>%
   group_by(has_employee_left = as.factor(recode(left, '0' = 'No', '1' = 'Yes'))) %>%
   summarise(count_left = n())
-
 ggplot(emp_prop, aes(x = "", y = count_left, fill = has_employee_left)) +
   geom_col() + 
   labs(title= "Proportion of employees who have left and those still at the company") +
@@ -642,7 +640,7 @@ ggplot(emp_prop, aes(x = "", y = count_left, fill = has_employee_left)) +
 
 ![](Turnover_Report_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
-#### 2. Why might an employee may leave, and what characterises those who stay?
+#### 2. Why might an employee leave, and what characterises those who stay?
 
 I put two questions in one here because it will be difficult to consider
 the conditions that made terminates leave without a corresponding look
@@ -752,8 +750,7 @@ satisfaction_count = employee_profile_renamed %>%
   group_by(has_employee_left = as.factor(recode(left, '0' = 'No', '1' = 'Yes'))) %>%
   summarise(number = n())
 
-sat_prop_left <- (satisfaction_count$number/emp_prop$count_left) *100  #remember emp_prop from the pie chart
-  
+sat_prop_left <- (satisfaction_count$number/emp_prop$count_left) *100  # remember `count_left` from emp_prop in the pie chart code chunk, which was the total count for each group of employees; still at the company or have left.
   
 as_tibble(sat_prop_left)
 ```
@@ -764,27 +761,27 @@ as_tibble(sat_prop_left)
     ## 1  62.2
     ## 2  27.4
 
-We see here that while over 60% of retainees are satisfied, only about
-27% of those who left were satisfied on the job.
+We see here that while over 60% of all retainees are satisfied, only
+about 27% of those who left were satisfied on the job.
 
 **Were employees working longer hours?**
 
 ``` r
 hours <- employee_profile_renamed %>% 
-  group_by(has_employee_left = as.factor(recode(left, '0' = 'No', '1' = 'Yes'))) %>%
+  group_by(left_status = as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) %>%
   summarise(average_hours = mean(mean_monthly_hours))
 
 hours
 ```
 
     ## # A tibble: 2 × 2
-    ##   has_employee_left average_hours
-    ##   <fct>                     <dbl>
-    ## 1 No                         199.
-    ## 2 Yes                        208.
+    ##   left_status  average_hours
+    ##   <fct>                <dbl>
+    ## 1 has left              208.
+    ## 2 has not left          199.
 
 ``` r
-ggplot(hours, aes(x = has_employee_left, y = average_hours)) + 
+ggplot(hours, aes(x = left_status, y = average_hours)) + 
   geom_bar(stat = 'identity', fill = 'purple') +
   labs(title="Who worked more hours?") 
 ```
