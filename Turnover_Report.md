@@ -870,7 +870,7 @@ hours
 
 ``` r
 ggplot(hours, aes(x = left_status, y = average_hours)) + 
-  geom_bar(stat = 'identity', fill = 'cornflowerblue') +
+  geom_bar(stat = 'identity', fill = 'purple') +
   labs(title="Who worked more hours?")
 ```
 
