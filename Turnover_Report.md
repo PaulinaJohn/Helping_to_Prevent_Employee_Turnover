@@ -66,9 +66,9 @@ Tracy had these questions:
 
 -   What is the turnover rate from the dataset being examined?
 
--   Why might an employee leave, and what characterises those who stay?
+-   Which department was worst hit by the turnover?
 
--   Which department was worst hit by the turnover and why?
+-   Why might an employee leave, and what characterises those who stay?
 
 -   From the analysis done, what recommendations can guide Qeug in its
     quest to proactively keep its employees?
@@ -635,8 +635,8 @@ print(turnover_rate)
 The turnover rate is 16.6% . This means that 16.6% of the employees have
 left the company.
 
-In addition, I visualized the proportion of employees who left compared
-to those who haven’t.
+In addition, I visualized the proportion of the company’s employees who
+have left.
 
 ``` r
 emp_prop <- employee_profile_renamed %>%
@@ -651,7 +651,70 @@ ggplot(emp_prop, aes(x = "", y = count_left, fill = has_employee_left)) +
 
 ![](Turnover_Report_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
-#### 2. Why might an employee leave, and what characterises those who stay.
+#### 2. Which department was worst hit by the turnover?
+
+To answer this question, first, I wanted to see the total number of
+employees for each department.
+
+``` r
+dept_emp_count <- employee_profile_renamed %>%
+  group_by(department) %>%
+  summarize(dept_count = n()) %>%
+  arrange(desc(dept_count))
+print(dept_emp_count)
+```
+
+    ## # A tibble: 10 × 2
+    ##    department  dept_count
+    ##    <chr>            <int>
+    ##  1 sales             3239
+    ##  2 technical         2244
+    ##  3 support           1821
+    ##  4 IT                 976
+    ##  5 RandD              694
+    ##  6 product_mng        686
+    ##  7 marketing          673
+    ##  8 accounting         621
+    ##  9 hr                 601
+    ## 10 management         436
+
+``` r
+dept_left_count <- employee_profile_renamed %>%
+  filter(left == 1) %>%
+  group_by(department) %>%
+  summarize(left_count = n()) %>%
+  arrange(desc(left_count))
+
+print(dept_left_count)
+```
+
+    ## # A tibble: 10 × 2
+    ##    department  left_count
+    ##    <chr>            <int>
+    ##  1 sales              550
+    ##  2 technical          390
+    ##  3 support            312
+    ##  4 IT                 158
+    ##  5 hr                 113
+    ##  6 marketing          112
+    ##  7 product_mng        110
+    ##  8 accounting         109
+    ##  9 RandD               85
+    ## 10 management          52
+
+The sales department has the highest number of employees.
+
+Next, I wanted to see the number of employees who left, by department
+
+have, at least, nearly the same number of employees or if some
+departments have more man power than others
+
+. That way, you can look at proportion: count of left for each
+department / count of total number of employees in each department. Then
+when you now get to question 3, you can now use department too in your
+dicing and slicing.
+
+#### 3. Why might an employee leave, and what characterises those who stay.
 
 I put two questions in one here in order to consider the conditions that
 made terminates leave alongside a corresponding look at what the
@@ -701,7 +764,7 @@ ggplot(cor, aes(x = Var1, y = Var2)) +
   geom_text(aes(label = round(value, 1)))
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 It appears not much is happening here. Between most of the variables,
 there is either no correlation or the relationship is weak; weak
@@ -749,7 +812,7 @@ ggplot(satisfaction_df, aes(x = left_status, y = satisfaction)) +
   theme_dark()
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 We can see that, satisfaction level for a terminate was below average
 while an employee still at the company exceeded it.
@@ -770,7 +833,7 @@ satisfaction_count = employee_profile_renamed %>%
   group_by(has_employee_left = as.factor(recode(left, '0' = 'No', '1' = 'Yes'))) %>%
   summarise(number = n())
 
-sat_prop_not_left <- round(((satisfaction_count$number[1]/emp_prop$count_left[1]) * 100), 2)
+sat_prop_not_left <- round(((satisfaction_count$number[1]/emp_prop$count_left[1]) * 100), 2)  # R counts from 1, not 0
 # remember emp_prop from the pie chart code chunk
 
 sat_prop_left <- round(((satisfaction_count$number[2]/emp_prop$count_left[2]) * 100), 2)
@@ -811,7 +874,7 @@ ggplot(hours, aes(x = left_status, y = average_hours)) +
   labs(title="Who worked more hours?")
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 Looks like, on average, those employees who left work slightly more
 hours than their counterparts who are still at the company.
@@ -827,7 +890,7 @@ ggplot(employee_profile_renamed, aes(x = mean_monthly_hours)) +
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 The focus here is not the height of the bins, but the spread. Why?
 Remember that there are way more people still at the company than those

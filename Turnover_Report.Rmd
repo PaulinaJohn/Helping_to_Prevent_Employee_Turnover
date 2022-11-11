@@ -26,9 +26,9 @@ Tracy had these questions:
 
 -   What is the turnover rate from the dataset being examined?
 
--   Why might an employee leave, and what characterises those who stay?
+-   Which department was worst hit by the turnover?
 
--   Which department was worst hit by the turnover and why?
+-   Why might an employee leave, and what characterises those who stay?
 
 -   From the analysis done, what recommendations can guide Qeug in its quest to proactively keep its employees?
 
@@ -279,7 +279,7 @@ print(turnover_rate)
 
 The turnover rate is 16.6% . This means that 16.6% of the employees have left the company.
 
-In addition, I visualized the proportion of employees who left compared to those who haven't.
+In addition, I visualized the proportion of the company's employees who have left.
 
 ```{r}
 emp_prop <- employee_profile_renamed %>%
@@ -292,7 +292,39 @@ ggplot(emp_prop, aes(x = "", y = count_left, fill = has_employee_left)) +
   theme_void()
 ```
 
-#### 2. Why might an employee leave, and what characterises those who stay.
+#### 2. Which department was worst hit by the turnover?
+
+To answer this question, first, I wanted to see the total number of employees for each department.
+
+```{r}
+dept_emp_count <- employee_profile_renamed %>%
+  group_by(department) %>%
+  summarize(dept_count = n()) %>%
+  arrange(desc(dept_count))
+print(dept_emp_count)
+
+dept_left_count <- employee_profile_renamed %>%
+  filter(left == 1) %>%
+  group_by(department) %>%
+  summarize(left_count = n()) %>%
+  arrange(desc(left_count))
+
+print(dept_left_count)
+```
+
+The sales department has the highest number of employees.
+
+Next, I wanted to see the number of employees who left, by department
+
+```{r}
+
+```
+
+have, at least, nearly the same number of employees or if some departments have more man power than others
+
+. That way, you can look at proportion: count of left for each department / count of total number of employees in each department. Then when you now get to question 3, you can now use department too in your dicing and slicing.
+
+#### 3. Why might an employee leave, and what characterises those who stay.
 
 I put two questions in one here in order to consider the conditions that made terminates leave alongside a corresponding look at what the environment might have been for those still at the company.
 
@@ -360,7 +392,7 @@ satisfaction_count = employee_profile_renamed %>%
   group_by(has_employee_left = as.factor(recode(left, '0' = 'No', '1' = 'Yes'))) %>%
   summarise(number = n())
 
-sat_prop_not_left <- round(((satisfaction_count$number[1]/emp_prop$count_left[1]) * 100), 2)
+sat_prop_not_left <- round(((satisfaction_count$number[1]/emp_prop$count_left[1]) * 100), 2)  # R counts from 1, not 0
 # remember emp_prop from the pie chart code chunk
 
 sat_prop_left <- round(((satisfaction_count$number[2]/emp_prop$count_left[2]) * 100), 2)
@@ -383,7 +415,7 @@ hours
 
 ```{r}
 ggplot(hours, aes(x = left_status, y = average_hours)) + 
-  geom_bar(stat = 'identity', fill = 'cornflowerblue') +
+  geom_bar(stat = 'identity', fill = 'purple') +
   labs(title="Who worked more hours?")
 ```
 
