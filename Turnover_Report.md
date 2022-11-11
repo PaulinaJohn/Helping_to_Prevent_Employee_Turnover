@@ -140,6 +140,8 @@ And, I loaded the packages.
 library(tidyverse)
 ```
 
+    ## Warning: package 'tidyverse' was built under R version 4.2.2
+
     ## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
     ## ✔ ggplot2 3.3.6      ✔ purrr   0.3.4 
     ## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
@@ -151,6 +153,11 @@ library(tidyverse)
 
 ``` r
 library(skimr)
+```
+
+    ## Warning: package 'skimr' was built under R version 4.2.2
+
+``` r
 library(ggplot2)
 library(reshape2)
 ```
@@ -176,6 +183,10 @@ employee_profile_data <- read_csv("C:/Users/Paulina/Git_files/my_Git_repos/HRAna
     ## 
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+view(employee_profile_data)
+```
 
 #### Getting to know the data
 
@@ -640,11 +651,11 @@ ggplot(emp_prop, aes(x = "", y = count_left, fill = has_employee_left)) +
 
 ![](Turnover_Report_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
-#### 2. Why might an employee leave, and what characterises those who stay?
+#### 2. Why might an employee leave, and what characterises those who stay.
 
-I put two questions in one here because it will be difficult to consider
-the conditions that made terminates leave without a corresponding look
-at what the environment might be for those still at the company.
+I put two questions in one here in order to consider the conditions that
+made terminates leave alongside a corresponding look at what the
+environment might have been for those still at the company.
 
 I began answering this question by looking at the relationships between
 variables in the dataset. The relationship between salary and other
@@ -657,7 +668,7 @@ incrementally to each category of values represented in the column.
 
 ``` r
 employee_profile_recoded <- employee_profile_renamed %>%
-   mutate(salary = as.numeric(recode(salary, low = '1', 'medium' = '2', 'high' = '3')))
+  mutate(salary = as.numeric(recode(salary, low = '1', 'medium' = '2', 'high' = '3')))
 
 head(employee_profile_recoded)
 ```
@@ -719,17 +730,26 @@ While this looks moderate, is this so, or close to so, across board?
 
 ``` r
 satisfaction_df <- employee_profile_renamed %>% 
-  group_by(has_employee_left = as.factor(recode(left, '0' = 'No', '1' = 'Yes'))) %>%
+  group_by(left_status = as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) %>%
   summarise(satisfaction = mean(satisfaction_level))
 
 satisfaction_df
 ```
 
     ## # A tibble: 2 × 2
-    ##   has_employee_left satisfaction
-    ##   <fct>                    <dbl>
-    ## 1 No                       0.667
-    ## 2 Yes                      0.440
+    ##   left_status  satisfaction
+    ##   <fct>               <dbl>
+    ## 1 has left            0.440
+    ## 2 has not left        0.667
+
+``` r
+ggplot(satisfaction_df, aes(x = left_status, y = satisfaction)) + 
+  geom_bar(stat = 'identity', fill = 'aliceblue') +
+  labs(title="Which group of employees were more satisfied on the job?") +
+  theme_dark()
+```
+
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 We can see that, satisfaction level for a terminate was below average
 while an employee still at the company exceeded it.
@@ -750,19 +770,24 @@ satisfaction_count = employee_profile_renamed %>%
   group_by(has_employee_left = as.factor(recode(left, '0' = 'No', '1' = 'Yes'))) %>%
   summarise(number = n())
 
-sat_prop_left <- (satisfaction_count$number/emp_prop$count_left) *100  # remember `count_left` from emp_prop in the pie chart code chunk, which was the total count for each group of employees; still at the company or have left.
-  
-as_tibble(sat_prop_left)
+sat_prop_not_left <- round(((satisfaction_count$number[1]/emp_prop$count_left[1]) * 100), 2)
+# remember emp_prop from the pie chart code chunk
+
+sat_prop_left <- round(((satisfaction_count$number[2]/emp_prop$count_left[2]) * 100), 2)
+
+sat_prop_not_left
 ```
 
-    ## # A tibble: 2 × 1
-    ##   value
-    ##   <dbl>
-    ## 1  62.2
-    ## 2  27.4
+    ## [1] 62.19
 
-We see here that while over 60% of all retainees are satisfied, only
-about 27% of those who left were satisfied on the job.
+``` r
+sat_prop_left
+```
+
+    ## [1] 27.42
+
+We see here that while about 60% of those still at the company are
+satisfied on the job, only about 27% of those who left were satisfied.
 
 **Were employees working longer hours?**
 
@@ -782,44 +807,55 @@ hours
 
 ``` r
 ggplot(hours, aes(x = left_status, y = average_hours)) + 
-  geom_bar(stat = 'identity', fill = 'purple') +
-  labs(title="Who worked more hours?") 
+  geom_bar(stat = 'identity', fill = 'cornflowerblue') +
+  labs(title="Who worked more hours?")
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
-Hmmn. Looks like, on average, those employees who left work slightly
-more hours than their counterparts who remained at the company.
+Looks like, on average, those employees who left work slightly more
+hours than their counterparts who are still at the company.
 
 ``` r
 ggplot(employee_profile_renamed, aes(x = mean_monthly_hours)) +
   geom_histogram(fill = 'pink') +
   facet_wrap(~as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) +
   theme(axis.text.x = element_text(angle = 45)) +
-  labs(title="Distribution of monthly hours of employees who remained at the \n company and those who left") + 
+  labs(title="Distribution of monthly work hours of employees who remained at the \n company and those who left") +
   theme_dark()
 ```
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
-The focus here is not the height of the bins, but the spread.
+The focus here is not the height of the bins, but the spread. Why?
+Remember that there are way more people still at the company than those
+who have left, so it is expected to have taller and fuller bins in a
+distribution of records for those employees still at the company,
+compared to those who have left.
 
-The summary statistics I looked at earlier, after cleaning was done, had
-hinted that some employees work for as long as 310 hours in a month.
-This histogram reveals that nearly, if not all of those employees who
-work for that long, are those who have left. From the chart, we can see
-that no employee who is still at the company work for to 300 hours.
+So, the insight here is in the spread. The summary statistics I looked
+at earlier, after the process stage, had hinted that some employees work
+for as long as 310 hours in a month. This histogram reveals that neary,
+if not all of those employees who work for that long, are part of those
+who have left, and no employee who is still at the company work for to
+300 hours.
 
-Another interesting insight here is that, while there are retained
-employees who worked for less than 100 hours in a month, none of the
-employees who left had that leisure. The least mean_monthly_hours for
-terminates in a month was above 100 hours.
+Correspondingly, while there are retained employees who worked for less
+than 100 hours in a month, none of the employees who left had that
+leisure. The least mean_monthly_hours for terminates in a month was
+above 100 hours. Could it be that those who left did because they were
+confined to a a certain length of work hours, longer than that of those
+still at the company?
 
-Could the employees who left have done so because they had to work
-longer hours than others?
+Combined with insights from the bar chart, there are indications that
+working for longer hours, when compared to employees still at the
+company, may have contributed to these employees leaving.
 
-Combined with insights from the bar chart, these are indications that
-working for longer hours especially when compared to that of fellow
-employees, may have contributed to these employees leaving.
+**Is this excessively long hours peculiar to a department?**
+
+To get more insight, I wanted to see which department these employees
+who had left were in. The goal was to see which department had most of
+their employees working above the mean monthly hours and how many hours
+they worked
