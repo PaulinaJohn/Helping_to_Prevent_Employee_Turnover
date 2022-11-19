@@ -103,18 +103,17 @@ guiding preventive measures.
 
 ## **Prepare:**
 
-In this phase, I accessed the dataset he project. The HR Director has
-identified an employee profile dataset from a hypothetical large
-company, made publicly available on Kaggle under the [CC0: Public
+In this phase, I accessed the dataset for the project. The HR Director
+has identified an [employee profile
+dataset](https://www.kaggle.com/datasets/jacksonchou/hr-data-for-analytics?select=HR_comma_sep.csv)
+from a hypothetical large company, made publicly available on Kaggle
+under the [CC0: Public
 Domain](https://creativecommons.org/publicdomain/zero/1.0/) license,
 with the current sharer hinting that the original provider had deleted
-their own submission. The data holds employee profile information.
-
-<https://www.kaggle.com/datasets/jacksonchou/hr-data-for-analytics?select=HR_comma_sep.csv>
-
-which she would like me to use. While the data may not entirely
-represent Qeug’s business context, she believes it can provide the
-generic view they need on employee turnover.
+their own submission. The data holds employee profile information, which
+she would like me to use. While the data may not entirely represent
+Qeug’s business context, she believes it can provide the generic view
+they need on employee turnover.
 
 I needed to get a closer look at my data so, I proceeded to set up my
 environment. As you may have noticed, I used R for this project. You can
@@ -346,7 +345,7 @@ an employee belongs to, rather than sales details.
 ## Process
 
 In this phase, I cleaned and transformed my data in preparation for
-analysis, and documented each action in a change log.
+analysis.
 
 Recall that, in the prepare phase, some data transformation needs had
 already been identified. So, in this phase, I examined the data further
@@ -640,9 +639,9 @@ have left.
 
 ``` r
 emp_prop <- employee_profile_renamed %>%
-  group_by(has_employee_left = as.factor(recode(left, '0' = 'No', '1' = 'Yes'))) %>%
+  group_by(exit_status = as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) %>%
   summarise(count_left = n())
-ggplot(emp_prop, aes(x = "", y = count_left, fill = has_employee_left)) +
+ggplot(emp_prop, aes(x = "", y = count_left, fill = exit_status)) +
   geom_col() + 
   labs(title= "Proportion of employees who have left and those still at the company") +
   coord_polar(theta = "y") +   # there is no pie_chart function in ggplot2, hence the coord_polar feature is needed to help us curve a bar or column chart into a pie
@@ -651,16 +650,17 @@ ggplot(emp_prop, aes(x = "", y = count_left, fill = has_employee_left)) +
 
 ![](Turnover_Report_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
-#### 2. Which department was worst hit by the turnover?
+#### 2. Which department was the worst hit by the turnover?
 
 To answer this question, first, I wanted to see the total number of
-employees for each department.
+employees for each department……
 
 ``` r
 dept_emp_count <- employee_profile_renamed %>%
   group_by(department) %>%
-  summarize(dept_count = n()) %>%
+  summarise(dept_count = n()) %>%
   arrange(desc(dept_count))
+
 print(dept_emp_count)
 ```
 
@@ -678,14 +678,19 @@ print(dept_emp_count)
     ##  9 hr                 601
     ## 10 management         436
 
+The sales department has the highest number of employees.
+
+…..and then I wanted to look at the number of employees who left, by
+department.
+
 ``` r
-dept_left_count <- employee_profile_renamed %>%
+left_emp_count <- employee_profile_renamed %>%
   filter(left == 1) %>%
   group_by(department) %>%
   summarize(left_count = n()) %>%
-  arrange(desc(left_count))
+   arrange(desc(left_count))
 
-print(dept_left_count)
+print(left_emp_count)
 ```
 
     ## # A tibble: 10 × 2
@@ -702,17 +707,74 @@ print(dept_left_count)
     ##  9 RandD               85
     ## 10 management          52
 
-The sales department has the highest number of employees.
+If we were to consider the two tables above at face-value, we see that
+the top four departments maintain status quo; they are the departments
+with the highest number of employees in total, and, seemingly, the
+departments with the highest number of employees who have left. The
+management department also maintains status quo as the department with
+the least number of employees in total, and that has lost the least
+number of employees.
 
-Next, I wanted to see the number of employees who left, by department
+But, looking at the remaining 5 departments, some insights catch the
+eye. The HR department, for example, , which is second to bottom in
+terms of total number of employees, has lost enough employees to take it
+to fifth spot on the list of departments that have lost the most
+employees. With this reveal, while it appears the sales department may
+have lost the most numbers of employees, can we emphatically say that it
+is the worst hit, considering that it has the most employees too?
 
-have, at least, nearly the same number of employees or if some
-departments have more man power than others
+A better way to find out which department was worst hit by the turnover
+would be to look at what percentage of the total number of employees in
+each department have left.
 
-. That way, you can look at proportion: count of left for each
-department / count of total number of employees in each department. Then
-when you now get to question 3, you can now use department too in your
-dicing and slicing.
+To achieve this, I first merged the two dataframes; `dept_emp_count` and
+`left_emp_count` to form a new one; `dept_left_percent`, then i added a
+new column that calculates the percentages. This was possible because
+both dataframes had a common column; `department`
+
+``` r
+dept_left_percent = 
+  merge(x = dept_emp_count, y = left_emp_count, by = "department") %>%
+  mutate(left_percent = (left_count/dept_count) * 100) %>%
+  arrange(desc(left_percent))
+
+print(dept_left_percent)
+```
+
+    ##     department dept_count left_count left_percent
+    ## 1           hr        601        113     18.80200
+    ## 2   accounting        621        109     17.55233
+    ## 3    technical       2244        390     17.37968
+    ## 4      support       1821        312     17.13344
+    ## 5        sales       3239        550     16.98055
+    ## 6    marketing        673        112     16.64190
+    ## 7           IT        976        158     16.18852
+    ## 8  product_mng        686        110     16.03499
+    ## 9        RandD        694         85     12.24784
+    ## 10  management        436         52     11.92661
+
+``` r
+#as.data.frame((left_emp_count$left_count/dept_emp_count$dept_count) * 100)
+```
+
+Let’s look at the percentages visually.
+
+``` r
+ggplot(dept_left_percent, aes(x = department, y = left_percent)) + 
+  geom_bar(stat = 'identity') +
+  labs(title="Percent of terminates for each department") + 
+  theme(axis.text.x.bottom = element_text(angle = 45, hjust = 1))
+```
+
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+Interesting! The department responsible for retaining employees; the HR
+department, turns out the worst hit by the turnover. Considering that
+the dataset is external to Queg solutions, these insights may not mean
+much to the company as-is, but could lead us to possibly consider what
+the work profile of each department was like and if this profile, was,
+in anyway, contributing to the turnover in the external company being
+examined.
 
 #### 3. Why might an employee leave, and what characterises those who stay.
 
@@ -764,7 +826,7 @@ ggplot(cor, aes(x = Var1, y = Var2)) +
   geom_text(aes(label = round(value, 1)))
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
 It appears not much is happening here. Between most of the variables,
 there is either no correlation or the relationship is weak; weak
@@ -812,7 +874,7 @@ ggplot(satisfaction_df, aes(x = left_status, y = satisfaction)) +
   theme_dark()
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 We can see that, satisfaction level for a terminate was below average
 while an employee still at the company exceeded it.
@@ -841,13 +903,13 @@ sat_prop_left <- round(((satisfaction_count$number[2]/emp_prop$count_left[2]) * 
 sat_prop_not_left
 ```
 
-    ## [1] 62.19
+    ## [1] 312.36
 
 ``` r
 sat_prop_left
 ```
 
-    ## [1] 27.42
+    ## [1] 5.46
 
 We see here that while about 60% of those still at the company are
 satisfied on the job, only about 27% of those who left were satisfied.
@@ -874,7 +936,7 @@ ggplot(hours, aes(x = left_status, y = average_hours)) +
   labs(title="Who worked more hours?")
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 Looks like, on average, those employees who left work slightly more
 hours than their counterparts who are still at the company.
@@ -890,7 +952,7 @@ ggplot(employee_profile_renamed, aes(x = mean_monthly_hours)) +
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 The focus here is not the height of the bins, but the spread. Why?
 Remember that there are way more people still at the company than those
@@ -922,3 +984,41 @@ To get more insight, I wanted to see which department these employees
 who had left were in. The goal was to see which department had most of
 their employees working above the mean monthly hours and how many hours
 they worked
+
+``` r
+df <- data.frame(id=rep(1:10, each=14),
+                 tp=letters[1:14],
+                 value_type=sample(LETTERS[1:3], 140, replace=TRUE),
+                 values=runif(140))
+```
+
+``` r
+df %>%
+  group_by(id, tp, value_type) %>%
+  summarise(A_mean = mean(values)) %>%
+  summarise(all_mean = mean(A_mean),
+            A_mean = sum(A_mean * (value_type == "A")),
+            value_count = sum(value_type == "A"))
+```
+
+    ## `summarise()` has grouped output by 'id', 'tp'. You can override using the
+    ## `.groups` argument.
+    ## `summarise()` has grouped output by 'id'. You can override using the `.groups`
+    ## argument.
+
+    ## # A tibble: 140 × 5
+    ## # Groups:   id [10]
+    ##       id tp    all_mean A_mean value_count
+    ##    <int> <chr>    <dbl>  <dbl>       <int>
+    ##  1     1 a        0.363  0.363           1
+    ##  2     1 b        0.141  0               0
+    ##  3     1 c        0.982  0               0
+    ##  4     1 d        0.594  0               0
+    ##  5     1 e        0.181  0.181           1
+    ##  6     1 f        0.629  0               0
+    ##  7     1 g        0.158  0               0
+    ##  8     1 h        0.780  0.780           1
+    ##  9     1 i        0.848  0               0
+    ## 10     1 j        0.592  0               0
+    ## # … with 130 more rows
+    ## # ℹ Use `print(n = ...)` to see more rows
