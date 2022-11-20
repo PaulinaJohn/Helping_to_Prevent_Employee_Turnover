@@ -26,7 +26,7 @@ Tracy had these questions:
 
 -   What is the turnover rate from the dataset being examined?
 
--   Which department was worst hit by the turnover?
+-   Which departments are the top 5 contributors to the overall number of terminates??
 
 -   Why might an employee leave, and what characterises those who stay?
 
@@ -80,7 +80,6 @@ I then moved on to load the data set.
 
 ```{r loading in my dataset}
 employee_profile_data <- read_csv("C:/Users/Paulina/Git_files/my_Git_repos/HRAnalyticsProject/employee_profile_data.csv")
-view(employee_profile_data)
 ```
 
 #### Getting to know the data
@@ -177,16 +176,32 @@ colnames(employee_profile_renamed)
 
 Changes were effected!
 
-#### Dealing with text data
+#### 
 
-#### Checking for multiple variants of a categorical value.
+**Checking for, and addressing string data inconsistency**
 
-My focus here is on the two columns with categorical (text) data; `department` and `salary` columns. Following my **Detect-Expose-Fix** model, first, I want to get distinct values in these columns. This will help bring incorrectly entered or mis-spelled values to the fore, if any.
+My focus here is on the two columns with categorical (text) data; `department` and `salary` columns. Following my **Detect-Expose-Fix** model, first, I want to get distinct values in these columns. This will help bring incorrectly entered, mis-spelled or inconsistently formated values to the fore, if any.
 
 ```{r}
 employee_profile_renamed %>%
   distinct(department)
 ```
+
+There are no multiple variants of any of the values in the department column.
+
+However, I wanted `hr` to appear in uppercase format, like `IT` , considering they are both acronyms. Also, I wanted any value other than `HR` or `IT` to be in titlecase (First letter in uppercase format)
+
+```{r}
+employee_profile_renamed <- employee_profile_renamed %>%                          
+  mutate(department = replace(department, department == "hr", "HR")) # 'mutate', because I want the change to happen inplace
+
+# Let's see if this change has been effected
+employee_profile_renamed %>%
+  filter(department == "HR") %>%
+  head()
+```
+
+Next, I checked for text data inconsistency in the `salary` column.
 
 ```{r}
 employee_profile_renamed %>%
@@ -194,7 +209,7 @@ employee_profile_renamed %>%
   
 ```
 
-There are no multiple variants of any of the values in these columns.
+There are no textual inconsistencies in this coumn.
 
 #### Dealing with Outliers
 
@@ -288,9 +303,9 @@ ggplot(emp_prop, aes(x = "", y = count_left, fill = exit_status)) +
   theme_void()
 ```
 
-#### 2. Which department was the worst hit by the turnover?
+#### 2. Which departments are the top 5 contributors to the overall number of terminates?
 
-To answer this question, first, I wanted to see the total number of employees for each department......
+To answer this question, first, I wanted to see the total number of employees for each department...
 
 ```{r}
 dept_emp_count <- employee_profile_renamed %>%
@@ -301,9 +316,7 @@ dept_emp_count <- employee_profile_renamed %>%
 print(dept_emp_count)
 ```
 
-The sales department has the highest number of employees.
-
-.....and then I wanted to look at the number of employees who left, by department.
+...then I looked at the number of employees who left, by department.
 
 ```{r}
 left_emp_count <- employee_profile_renamed %>%
@@ -315,13 +328,22 @@ left_emp_count <- employee_profile_renamed %>%
 print(left_emp_count)
 ```
 
-If we were to consider the two tables above at face-value, we see that the top four departments maintain status quo; they are the departments with the highest number of employees in total, and, seemingly, the departments with the highest number of employees who have left. The management department also maintains status quo as the department with the least number of employees in total, and that has lost the least number of employees.
+```{r}
+ggplot(left_emp_count, aes(x = department, y = left_count)) + 
+  geom_bar(stat = 'identity') +
+  labs(title="Number of employees who have left the company per department") + 
+  theme(axis.text.x.bottom = element_text(angle = 45, hjust = 1))
+```
 
-But, looking at the remaining 5 departments, some insights catch the eye. The HR department, for example, , which is second to bottom in terms of total number of employees, has lost enough employees to take it to fifth spot on the list of departments that have lost the most employees. With this reveal, while it appears the sales department may have lost the most numbers of employees, can we emphatically say that it is the worst hit, considering that it has the most employees too?
+The Sales, Technical, Support, IT and HR are the top 5 departments contributing the most to the total number of terminates.
 
-A better way to find out which department was worst hit by the turnover would be to look at what percentage of the total number of employees in each department have left.
+**PS**: Note, however, that this does not translate to them being the worst hit by the turnover. Should Queg need to examine turnover when it has accumulated enough internal data, and wishes to find out which of their departments is worst hit, It would be better to look at what percentage or proportion of the total number of employees in each department, have left, rather than a count.
 
-To achieve this, I first merged the two dataframes; `dept_emp_count` and `left_emp_count` to form a new one; `dept_left_percent`, then i added a new column that calculates the percentages. This was possible because both dataframes had a common column; `department`
+To explain this; looking at two tables again, the top four departments maintain status quo as the departments with the highest number of employees in total, and, the departments with the highest number of employees who have left. The management department also maintains status quo as the department with the least number of employees in total, and that has lost the least number of employees.
+
+But, looking at the remaining 5 departments, some insights catch the eye. The HR department, for example, which is second to bottom in terms of total number of employees, has lost enough employees to take it to fifth spot on the list of departments that have lost the most employees. So, while it appears the sales department may have lost the most numbers of employees, we cannot emphatically say that it is the worst hit, considering that it has the most employees too.
+
+To show this, I merged the two dataframes; `dept_emp_count` and `left_emp_count` to form a new one; `dept_left_percent`, then i added a new column that calculates the percentages. This was possible because both dataframes had a common column; `department`
 
 ```{r merging the dataframes}
 dept_left_percent = 
@@ -334,16 +356,7 @@ print(dept_left_percent)
 #as.data.frame((left_emp_count$left_count/dept_emp_count$dept_count) * 100)
 ```
 
-Let's look at the percentages visually.
-
-```{r}
-ggplot(dept_left_percent, aes(x = department, y = left_percent)) + 
-  geom_bar(stat = 'identity') +
-  labs(title="Percent of terminates for each department") + 
-  theme(axis.text.x.bottom = element_text(angle = 45, hjust = 1))
-```
-
-Interesting! The department responsible for retaining employees; the HR department, turns out the worst hit by the turnover. Considering that the dataset is external to Queg solutions, these insights may not mean much to the company as-is, but could lead us to possibly consider what the work profile of each department was like and if this profile, was, in anyway, contributing to the turnover in the external company being examined.
+Interesting! Turns out the the department responsible for retaining employees; the HR department, was the worst hit by the turnover here, followed by the Accounting department. As implied earlier, while this insight may not mean much to Queg Solutions for this project, It is one that Queg may want to pay attention to when it begins analyzing its own data.
 
 #### 3. Why might an employee leave, and what characterises those who stay.
 
@@ -453,28 +466,8 @@ ggplot(employee_profile_renamed, aes(x = mean_monthly_hours)) +
 
 The focus here is not the height of the bins, but the spread. Why? Remember that there are way more people still at the company than those who have left, so it is expected to have taller and fuller bins in a distribution of records for those employees still at the company, compared to those who have left.
 
-So, the insight here is in the spread. The summary statistics I looked at earlier, after the process stage, had hinted that some employees work for as long as 310 hours in a month. This histogram reveals that neary, if not all of those employees who work for that long, are part of those who have left, and no employee who is still at the company work for to 300 hours.
+So, the insight here is in the spread. The summary statistics I looked at earlier, after the process stage, had hinted that some employees work for as long as 310 hours in a month. This histogram reveals that nealy, if not all of those employees who work for that long, are part of those who have left, and no employee who is still at the company work for to 300 hours.
 
 Correspondingly, while there are retained employees who worked for less than 100 hours in a month, none of the employees who left had that leisure. The least mean_monthly_hours for terminates in a month was above 100 hours. Could it be that those who left did because they were confined to a a certain length of work hours, longer than that of those still at the company?
 
 Combined with insights from the bar chart, there are indications that working for longer hours, when compared to employees still at the company, may have contributed to these employees leaving.
-
-**Is this excessively long hours peculiar to a department?**
-
-To get more insight, I wanted to see which department these employees who had left were in. The goal was to see which department had most of their employees working above the mean monthly hours and how many hours they worked
-
-```{r}
-df <- data.frame(id=rep(1:10, each=14),
-                 tp=letters[1:14],
-                 value_type=sample(LETTERS[1:3], 140, replace=TRUE),
-                 values=runif(140))
-```
-
-```{r}
-df %>%
-  group_by(id, tp, value_type) %>%
-  summarise(A_mean = mean(values)) %>%
-  summarise(all_mean = mean(A_mean),
-            A_mean = sum(A_mean * (value_type == "A")),
-            value_count = sum(value_type == "A"))
-```

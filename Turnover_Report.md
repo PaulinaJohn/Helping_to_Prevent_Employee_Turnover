@@ -66,7 +66,8 @@ Tracy had these questions:
 
 -   What is the turnover rate from the dataset being examined?
 
--   Which department was worst hit by the turnover?
+-   Which departments are the top 5 contributors to the overall number
+    of terminates??
 
 -   Why might an employee leave, and what characterises those who stay?
 
@@ -145,7 +146,10 @@ library(tidyverse)
     ## ✔ ggplot2 3.3.6      ✔ purrr   0.3.4 
     ## ✔ tibble  3.1.8      ✔ dplyr   1.0.10
     ## ✔ tidyr   1.2.0      ✔ stringr 1.4.1 
-    ## ✔ readr   2.1.2      ✔ forcats 0.5.2 
+    ## ✔ readr   2.1.2      ✔ forcats 0.5.2
+
+    ## Warning: package 'stringr' was built under R version 4.2.2
+
     ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
     ## ✖ dplyr::filter() masks stats::filter()
     ## ✖ dplyr::lag()    masks stats::lag()
@@ -182,10 +186,6 @@ employee_profile_data <- read_csv("C:/Users/Paulina/Git_files/my_Git_repos/HRAna
     ## 
     ## ℹ Use `spec()` to retrieve the full column specification for this data.
     ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-``` r
-view(employee_profile_data)
-```
 
 #### Getting to know the data
 
@@ -426,15 +426,15 @@ colnames(employee_profile_renamed)
 
 Changes were effected!
 
-#### Dealing with text data
+#### 
 
-#### Checking for multiple variants of a categorical value.
+**Checking for, and addressing string data inconsistency**
 
 My focus here is on the two columns with categorical (text) data;
 `department` and `salary` columns. Following my **Detect-Expose-Fix**
 model, first, I want to get distinct values in these columns. This will
-help bring incorrectly entered or mis-spelled values to the fore, if
-any.
+help bring incorrectly entered, mis-spelled or inconsistently formated
+values to the fore, if any.
 
 ``` r
 employee_profile_renamed %>%
@@ -455,6 +455,38 @@ employee_profile_renamed %>%
     ##  9 marketing  
     ## 10 RandD
 
+There are no multiple variants of any of the values in the department
+column.
+
+However, I wanted `hr` to appear in uppercase format, like `IT` ,
+considering they are both acronyms. Also, I wanted any value other than
+`HR` or `IT` to be in titlecase (First letter in uppercase format)
+
+``` r
+employee_profile_renamed <- employee_profile_renamed %>%                          
+  mutate(department = replace(department, department == "hr", "HR")) # 'mutate', because I want the change to happen inplace
+
+# Let's see if this change has been effected
+employee_profile_renamed %>%
+  filter(department == "HR") %>%
+  head()
+```
+
+    ## # A tibble: 6 × 10
+    ##   satisfac…¹ last_…² num_o…³ mean_…⁴ tenure Work_…⁵  left promo…⁶ depar…⁷ salary
+    ##        <dbl>   <dbl>   <dbl>   <dbl>  <dbl>   <dbl> <dbl>   <dbl> <chr>   <chr> 
+    ## 1       0.45    0.57       2     134      3       0     1       0 HR      low   
+    ## 2       0.4     0.51       2     145      3       0     1       0 HR      low   
+    ## 3       0.45    0.55       2     140      3       0     1       0 HR      low   
+    ## 4       0.84    0.87       4     246      6       0     1       0 HR      low   
+    ## 5       0.71    0.87       3     177      4       0     1       0 HR      medium
+    ## 6       0.4     0.49       2     155      3       0     1       0 HR      medium
+    ## # … with abbreviated variable names ¹​satisfaction_level, ²​last_evaluation,
+    ## #   ³​num_of_projects, ⁴​mean_monthly_hours, ⁵​Work_accident,
+    ## #   ⁶​promoted_last_5years, ⁷​department
+
+Next, I checked for text data inconsistency in the `salary` column.
+
 ``` r
 employee_profile_renamed %>%
   distinct(salary)
@@ -467,7 +499,7 @@ employee_profile_renamed %>%
     ## 2 medium
     ## 3 high
 
-There are no multiple variants of any of the values in these columns.
+There are no textual inconsistencies in this coumn.
 
 #### Dealing with Outliers
 
@@ -491,7 +523,7 @@ boxplot(employee_profile_renamed$num_of_projects,col="#3090C7", main = "Number_o
 boxplot(employee_profile_renamed$tenure,col="#3090C7", main = "Tenure")
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 From the boxplots above, we see that there are outliers in the `tenure`
 column. How do we treat this?
@@ -648,12 +680,12 @@ ggplot(emp_prop, aes(x = "", y = count_left, fill = exit_status)) +
   theme_void()
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
-#### 2. Which department was the worst hit by the turnover?
+#### 2. Which departments are the top 5 contributors to the overall number of terminates?
 
 To answer this question, first, I wanted to see the total number of
-employees for each department……
+employees for each department…
 
 ``` r
 dept_emp_count <- employee_profile_renamed %>%
@@ -675,13 +707,10 @@ print(dept_emp_count)
     ##  6 product_mng        686
     ##  7 marketing          673
     ##  8 accounting         621
-    ##  9 hr                 601
+    ##  9 HR                 601
     ## 10 management         436
 
-The sales department has the highest number of employees.
-
-…..and then I wanted to look at the number of employees who left, by
-department.
+…then I looked at the number of employees who left, by department.
 
 ``` r
 left_emp_count <- employee_profile_renamed %>%
@@ -700,34 +729,48 @@ print(left_emp_count)
     ##  2 technical          390
     ##  3 support            312
     ##  4 IT                 158
-    ##  5 hr                 113
+    ##  5 HR                 113
     ##  6 marketing          112
     ##  7 product_mng        110
     ##  8 accounting         109
     ##  9 RandD               85
     ## 10 management          52
 
-If we were to consider the two tables above at face-value, we see that
-the top four departments maintain status quo; they are the departments
-with the highest number of employees in total, and, seemingly, the
-departments with the highest number of employees who have left. The
-management department also maintains status quo as the department with
-the least number of employees in total, and that has lost the least
-number of employees.
+``` r
+ggplot(left_emp_count, aes(x = department, y = left_count)) + 
+  geom_bar(stat = 'identity') +
+  labs(title="Number of employees who have left the company per department") + 
+  theme(axis.text.x.bottom = element_text(angle = 45, hjust = 1))
+```
+
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+
+The Sales, Technical, Support, IT and HR are the top 5 departments
+contributing the most to the total number of terminates.
+
+**PS**: Note, however, that this does not translate to them being the
+worst hit by the turnover. Should Queg need to examine turnover when it
+has accumulated enough internal data, and wishes to find out which of
+their departments is worst hit, It would be better to look at what
+percentage or proportion of the total number of employees in each
+department, have left, rather than a count.
+
+To explain this; looking at two tables again, the top four departments
+maintain status quo as the departments with the highest number of
+employees in total, and, the departments with the highest number of
+employees who have left. The management department also maintains status
+quo as the department with the least number of employees in total, and
+that has lost the least number of employees.
 
 But, looking at the remaining 5 departments, some insights catch the
-eye. The HR department, for example, , which is second to bottom in
-terms of total number of employees, has lost enough employees to take it
-to fifth spot on the list of departments that have lost the most
-employees. With this reveal, while it appears the sales department may
-have lost the most numbers of employees, can we emphatically say that it
-is the worst hit, considering that it has the most employees too?
+eye. The HR department, for example, which is second to bottom in terms
+of total number of employees, has lost enough employees to take it to
+fifth spot on the list of departments that have lost the most employees.
+So, while it appears the sales department may have lost the most numbers
+of employees, we cannot emphatically say that it is the worst hit,
+considering that it has the most employees too.
 
-A better way to find out which department was worst hit by the turnover
-would be to look at what percentage of the total number of employees in
-each department have left.
-
-To achieve this, I first merged the two dataframes; `dept_emp_count` and
+To show this, I merged the two dataframes; `dept_emp_count` and
 `left_emp_count` to form a new one; `dept_left_percent`, then i added a
 new column that calculates the percentages. This was possible because
 both dataframes had a common column; `department`
@@ -742,7 +785,7 @@ print(dept_left_percent)
 ```
 
     ##     department dept_count left_count left_percent
-    ## 1           hr        601        113     18.80200
+    ## 1           HR        601        113     18.80200
     ## 2   accounting        621        109     17.55233
     ## 3    technical       2244        390     17.37968
     ## 4      support       1821        312     17.13344
@@ -757,24 +800,12 @@ print(dept_left_percent)
 #as.data.frame((left_emp_count$left_count/dept_emp_count$dept_count) * 100)
 ```
 
-Let’s look at the percentages visually.
-
-``` r
-ggplot(dept_left_percent, aes(x = department, y = left_percent)) + 
-  geom_bar(stat = 'identity') +
-  labs(title="Percent of terminates for each department") + 
-  theme(axis.text.x.bottom = element_text(angle = 45, hjust = 1))
-```
-
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
-
-Interesting! The department responsible for retaining employees; the HR
-department, turns out the worst hit by the turnover. Considering that
-the dataset is external to Queg solutions, these insights may not mean
-much to the company as-is, but could lead us to possibly consider what
-the work profile of each department was like and if this profile, was,
-in anyway, contributing to the turnover in the external company being
-examined.
+Interesting! Turns out the the department responsible for retaining
+employees; the HR department, was the worst hit by the turnover here,
+followed by the Accounting department. As implied earlier, while this
+insight may not mean much to Queg Solutions for this project, It is one
+that Queg may want to pay attention to when it begins analyzing its own
+data.
 
 #### 3. Why might an employee leave, and what characterises those who stay.
 
@@ -826,7 +857,7 @@ ggplot(cor, aes(x = Var1, y = Var2)) +
   geom_text(aes(label = round(value, 1)))
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 It appears not much is happening here. Between most of the variables,
 there is either no correlation or the relationship is weak; weak
@@ -874,7 +905,7 @@ ggplot(satisfaction_df, aes(x = left_status, y = satisfaction)) +
   theme_dark()
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 We can see that, satisfaction level for a terminate was below average
 while an employee still at the company exceeded it.
@@ -936,7 +967,7 @@ ggplot(hours, aes(x = left_status, y = average_hours)) +
   labs(title="Who worked more hours?")
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 Looks like, on average, those employees who left work slightly more
 hours than their counterparts who are still at the company.
@@ -952,7 +983,7 @@ ggplot(employee_profile_renamed, aes(x = mean_monthly_hours)) +
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 The focus here is not the height of the bins, but the spread. Why?
 Remember that there are way more people still at the company than those
@@ -962,7 +993,7 @@ compared to those who have left.
 
 So, the insight here is in the spread. The summary statistics I looked
 at earlier, after the process stage, had hinted that some employees work
-for as long as 310 hours in a month. This histogram reveals that neary,
+for as long as 310 hours in a month. This histogram reveals that nealy,
 if not all of those employees who work for that long, are part of those
 who have left, and no employee who is still at the company work for to
 300 hours.
@@ -977,48 +1008,3 @@ still at the company?
 Combined with insights from the bar chart, there are indications that
 working for longer hours, when compared to employees still at the
 company, may have contributed to these employees leaving.
-
-**Is this excessively long hours peculiar to a department?**
-
-To get more insight, I wanted to see which department these employees
-who had left were in. The goal was to see which department had most of
-their employees working above the mean monthly hours and how many hours
-they worked
-
-``` r
-df <- data.frame(id=rep(1:10, each=14),
-                 tp=letters[1:14],
-                 value_type=sample(LETTERS[1:3], 140, replace=TRUE),
-                 values=runif(140))
-```
-
-``` r
-df %>%
-  group_by(id, tp, value_type) %>%
-  summarise(A_mean = mean(values)) %>%
-  summarise(all_mean = mean(A_mean),
-            A_mean = sum(A_mean * (value_type == "A")),
-            value_count = sum(value_type == "A"))
-```
-
-    ## `summarise()` has grouped output by 'id', 'tp'. You can override using the
-    ## `.groups` argument.
-    ## `summarise()` has grouped output by 'id'. You can override using the `.groups`
-    ## argument.
-
-    ## # A tibble: 140 × 5
-    ## # Groups:   id [10]
-    ##       id tp    all_mean A_mean value_count
-    ##    <int> <chr>    <dbl>  <dbl>       <int>
-    ##  1     1 a        0.363  0.363           1
-    ##  2     1 b        0.141  0               0
-    ##  3     1 c        0.982  0               0
-    ##  4     1 d        0.594  0               0
-    ##  5     1 e        0.181  0.181           1
-    ##  6     1 f        0.629  0               0
-    ##  7     1 g        0.158  0               0
-    ##  8     1 h        0.780  0.780           1
-    ##  9     1 i        0.848  0               0
-    ## 10     1 j        0.592  0               0
-    ## # … with 130 more rows
-    ## # ℹ Use `print(n = ...)` to see more rows
