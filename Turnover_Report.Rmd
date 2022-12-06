@@ -411,9 +411,8 @@ satisfaction_df
 
 ```{r}
 ggplot(satisfaction_df, aes(x = exit_status, y = satisfaction)) + 
-  geom_bar(stat = 'identity', fill = 'aliceblue') +
-  labs(title="Which group of employees were more satisfied on the job?") +
-  theme_dark()
+  geom_bar(stat = 'identity', fill = 'purple') +
+  labs(title="Which group of employees were more satisfied on the job?")
 ```
 
 -   We can see that, satisfaction level for a terminate was below average while an employee still at the company exceeded it.
@@ -451,16 +450,17 @@ First, I wanted to see satisfaction level of terminates and those still at the c
 
 ```{r}
 hours <- employee_profile_renamed %>% 
-  group_by(left_status = as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) %>%
+  group_by(exit_status = as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) %>%
   summarise(average_hours = mean(mean_monthly_hours))
 
 hours
 ```
 
 ```{r}
-ggplot(hours, aes(x = left_status, y = average_hours)) + 
-  geom_bar(stat = 'identity', fill = 'purple') +
-  labs(title="Who worked more hours?")
+ggplot(hours, aes(x = exit_status, y = average_hours)) + 
+  geom_bar(stat = 'identity', fill = 'aquamarine') +
+  labs(title="Who worked more hours?") +
+  theme_dark()
 ```
 
 Looks like, on average, those employees who left work slightly more hours than their counterparts who are still at the company.

@@ -901,9 +901,8 @@ satisfaction_df
 
 ``` r
 ggplot(satisfaction_df, aes(x = exit_status, y = satisfaction)) + 
-  geom_bar(stat = 'identity', fill = 'aliceblue') +
-  labs(title="Which group of employees were more satisfied on the job?") +
-  theme_dark()
+  geom_bar(stat = 'identity', fill = 'purple') +
+  labs(title="Which group of employees were more satisfied on the job?")
 ```
 
 ![](Turnover_Report_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
@@ -956,22 +955,23 @@ each department crossed the 0.62 average.
 
 ``` r
 hours <- employee_profile_renamed %>% 
-  group_by(left_status = as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) %>%
+  group_by(exit_status = as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) %>%
   summarise(average_hours = mean(mean_monthly_hours))
 
 hours
 ```
 
     ## # A tibble: 2 × 2
-    ##   left_status  average_hours
+    ##   exit_status  average_hours
     ##   <fct>                <dbl>
     ## 1 has left              208.
     ## 2 has not left          199.
 
 ``` r
-ggplot(hours, aes(x = left_status, y = average_hours)) + 
-  geom_bar(stat = 'identity', fill = 'purple') +
-  labs(title="Who worked more hours?")
+ggplot(hours, aes(x = exit_status, y = average_hours)) + 
+  geom_bar(stat = 'identity', fill = 'aquamarine') +
+  labs(title="Who worked more hours?") +
+  theme_dark()
 ```
 
 ![](Turnover_Report_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
