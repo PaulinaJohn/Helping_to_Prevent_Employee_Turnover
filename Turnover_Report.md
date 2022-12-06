@@ -426,8 +426,6 @@ colnames(employee_profile_renamed)
 
 Changes were effected!
 
-#### 
-
 **Checking for, and addressing string data inconsistency**
 
 My focus here is on the two columns with categorical (text) data;
@@ -437,6 +435,8 @@ help bring incorrectly entered, mis-spelled or inconsistently formated
 values to the fore, if any.
 
 ``` r
+# Checking the department column
+
 employee_profile_renamed %>%
   distinct(department)
 ```
@@ -455,18 +455,15 @@ employee_profile_renamed %>%
     ##  9 marketing  
     ## 10 RandD
 
-There are no multiple variants of any of the values in the department
-column.
-
-However, I wanted `hr` to appear in uppercase format, like `IT` ,
-considering they are both acronyms. Also, I wanted any value other than
-`HR` or `IT` to be in titlecase (First letter in uppercase format)
+In the \`department\` column, I wanted ‘hr’ to appear in uppercase
+format, like ‘IT’ , considering they are both acronyms. Note that
+‘RandD’ means ‘Research and Development’.
 
 ``` r
 employee_profile_renamed <- employee_profile_renamed %>%                          
-  mutate(department = replace(department, department == "hr", "HR")) # 'mutate', because I want the change to happen inplace
+  mutate(department = replace(department, department == "hr", "HR")) # 'mutate', because I want the change to happen inplace.
 
-# Let's see if this change has been effected
+# Checking that the change has been effected
 employee_profile_renamed %>%
   filter(department == "HR") %>%
   head()
@@ -485,6 +482,8 @@ employee_profile_renamed %>%
     ## #   ³​num_of_projects, ⁴​mean_monthly_hours, ⁵​Work_accident,
     ## #   ⁶​promoted_last_5years, ⁷​department
 
+Change effected!
+
 Next, I checked for text data inconsistency in the `salary` column.
 
 ``` r
@@ -499,7 +498,7 @@ employee_profile_renamed %>%
     ## 2 medium
     ## 3 high
 
-There are no textual inconsistencies in this coumn.
+There are no textual inconsistencies in this column.
 
 #### Dealing with Outliers
 
@@ -672,7 +671,9 @@ have left.
 ``` r
 emp_prop <- employee_profile_renamed %>%
   group_by(exit_status = as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) %>%
-  summarise(count_left = n())
+  summarise(count_left = n()) %>%
+  arrange(desc(count_left))
+
 ggplot(emp_prop, aes(x = "", y = count_left, fill = exit_status)) +
   geom_col() + 
   labs(title= "Proportion of employees who have left and those still at the company") +
@@ -749,26 +750,26 @@ The Sales, Technical, Support, IT and HR are the top 5 departments
 contributing the most to the total number of terminates.
 
 **PS**: Note, however, that this does not translate to them being the
-worst hit by the turnover. Should Queg need to examine turnover when it
-has accumulated enough internal data, and wishes to find out which of
-their departments is worst hit, It would be better to look at what
-percentage or proportion of the total number of employees in each
-department, have left, rather than a count.
+worst hit by the turnover. Should Queg Solutions need to examine
+turnover when it has accumulated enough internal data, and wishes to
+find out which of their departments is worst hit, It would be better to
+look at what percentage or proportion of the total number of employees
+in each department, have left, rather than a count.
 
-To explain this; looking at two tables again, the top four departments
-maintain status quo as the departments with the highest number of
-employees in total, and, the departments with the highest number of
-employees who have left. The management department also maintains status
-quo as the department with the least number of employees in total, and
-that has lost the least number of employees.
+To explain this; looking at the two tables again, the top four
+departments maintain status quo as the departments with the highest
+number of employees in total, and, the departments with the highest
+number of employees who have left. The management department also
+maintains status quo as the department with the least number of
+employees in total, and that has lost the least number of employees.
 
 But, looking at the remaining 5 departments, some insights catch the
 eye. The HR department, for example, which is second to bottom in terms
 of total number of employees, has lost enough employees to take it to
-fifth spot on the list of departments that have lost the most employees.
-So, while it appears the sales department may have lost the most numbers
-of employees, we cannot emphatically say that it is the worst hit,
-considering that it has the most employees too.
+fifth spot on the list of terminates per department. So, while it
+appears the sales department may have lost the most numbers of
+employees, we cannot say that it is the worst hit, considering it has
+the most employees too.
 
 To show this, I merged the two dataframes; `dept_emp_count` and
 `left_emp_count` to form a new one; `dept_left_percent`, then i added a
@@ -803,9 +804,9 @@ print(dept_left_percent)
 Interesting! Turns out the the department responsible for retaining
 employees; the HR department, was the worst hit by the turnover here,
 followed by the Accounting department. As implied earlier, while this
-insight may not mean much to Queg Solutions for this project, It is one
-that Queg may want to pay attention to when it begins analyzing its own
-data.
+insight may not mean much to Queg Solutions for this project, It’s one
+the company may want to pay attention to when it begins analyzing its
+own data.
 
 #### 3. Why might an employee leave, and what characterises those who stay.
 
@@ -886,20 +887,20 @@ While this looks moderate, is this so, or close to so, across board?
 
 ``` r
 satisfaction_df <- employee_profile_renamed %>% 
-  group_by(left_status = as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) %>%
+  group_by(exit_status = as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) %>%
   summarise(satisfaction = mean(satisfaction_level))
 
 satisfaction_df
 ```
 
     ## # A tibble: 2 × 2
-    ##   left_status  satisfaction
+    ##   exit_status  satisfaction
     ##   <fct>               <dbl>
     ## 1 has left            0.440
     ## 2 has not left        0.667
 
 ``` r
-ggplot(satisfaction_df, aes(x = left_status, y = satisfaction)) + 
+ggplot(satisfaction_df, aes(x = exit_status, y = satisfaction)) + 
   geom_bar(stat = 'identity', fill = 'aliceblue') +
   labs(title="Which group of employees were more satisfied on the job?") +
   theme_dark()
@@ -907,8 +908,8 @@ ggplot(satisfaction_df, aes(x = left_status, y = satisfaction)) +
 
 ![](Turnover_Report_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
-We can see that, satisfaction level for a terminate was below average
-while an employee still at the company exceeded it.
+-   We can see that, satisfaction level for a terminate was below
+    average while an employee still at the company exceeded it.
 
 I went ahead to look at what proportion of the terminates and retainees
 reached or surpassed the average satisfaction level.
@@ -923,7 +924,7 @@ share the same denominator.
 ``` r
 satisfaction_count = employee_profile_renamed %>%
   filter(satisfaction_level >= 0.62) %>%
-  group_by(has_employee_left = as.factor(recode(left, '0' = 'No', '1' = 'Yes'))) %>%
+  group_by(left) %>%
   summarise(number = n())
 
 sat_prop_not_left <- round(((satisfaction_count$number[1]/emp_prop$count_left[1]) * 100), 2)  # R counts from 1, not 0
@@ -934,18 +935,24 @@ sat_prop_left <- round(((satisfaction_count$number[2]/emp_prop$count_left[2]) * 
 sat_prop_not_left
 ```
 
-    ## [1] 312.36
+    ## [1] 62.19
 
 ``` r
 sat_prop_left
 ```
 
-    ## [1] 5.46
+    ## [1] 27.42
 
 We see here that while about 60% of those still at the company are
 satisfied on the job, only about 27% of those who left were satisfied.
 
-**Were employees working longer hours?**
+I wanted to see if this was so across departments.
+
+First, I wanted to see satisfaction level of terminates and those still
+at the company, b department and, then, look at how many employees in
+each department crossed the 0.62 average.
+
+**How long, hourly, were employees working?**
 
 ``` r
 hours <- employee_profile_renamed %>% 
@@ -967,7 +974,7 @@ ggplot(hours, aes(x = left_status, y = average_hours)) +
   labs(title="Who worked more hours?")
 ```
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 Looks like, on average, those employees who left work slightly more
 hours than their counterparts who are still at the company.
@@ -983,7 +990,7 @@ ggplot(employee_profile_renamed, aes(x = mean_monthly_hours)) +
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 The focus here is not the height of the bins, but the spread. Why?
 Remember that there are way more people still at the company than those
@@ -1008,3 +1015,5 @@ still at the company?
 Combined with insights from the bar chart, there are indications that
 working for longer hours, when compared to employees still at the
 company, may have contributed to these employees leaving.
+
+I wanted to see how
