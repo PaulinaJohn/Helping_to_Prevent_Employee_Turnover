@@ -175,17 +175,8 @@ library(reshape2)
 I then moved on to load the data set.
 
 ``` r
-employee_profile_data <- read_csv("C:/Users/Paulina/Git_files/my_Git_repos/HRAnalyticsProject/employee_profile_data.csv")
+employee_profile_data <- read_csv("C:/Users/Paulina/Git_files/my_Git_repos/HRAnalyticsProject/employee_profile_data.csv", show_col_types = FALSE)
 ```
-
-    ## Rows: 14999 Columns: 10
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr (2): sales, salary
-    ## dbl (8): satisfaction_level, last_evaluation, number_project, average_montly...
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 #### Getting to know the data
 
@@ -739,7 +730,7 @@ print(left_emp_count)
 
 ``` r
 ggplot(left_emp_count, aes(x = department, y = left_count)) + 
-  geom_bar(stat = 'identity') +
+  geom_bar(stat = 'identity', fill = "blue") +
   labs(title="Number of employees who have left the company per department") + 
   theme(axis.text.x.bottom = element_text(angle = 45, hjust = 1))
 ```
@@ -796,10 +787,6 @@ print(dept_left_percent)
     ## 8  product_mng        686        110     16.03499
     ## 9        RandD        694         85     12.24784
     ## 10  management        436         52     11.92661
-
-``` r
-#as.data.frame((left_emp_count$left_count/dept_emp_count$dept_count) * 100)
-```
 
 Interesting! Turns out the the department responsible for retaining
 employees; the HR department, was the worst hit by the turnover here,
@@ -901,8 +888,9 @@ satisfaction_df
 
 ``` r
 ggplot(satisfaction_df, aes(x = exit_status, y = satisfaction)) + 
-  geom_bar(stat = 'identity', fill = 'purple') +
-  labs(title="Which group of employees were more satisfied on the job?")
+  geom_bar(stat = "identity", fill = "lightblue") +
+  labs(title="Which group of employees were more satisfied on the job?") +
+  theme_dark()
 ```
 
 ![](Turnover_Report_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
@@ -945,52 +933,106 @@ sat_prop_left
 We see here that while about 60% of those still at the company are
 satisfied on the job, only about 27% of those who left were satisfied.
 
-I wanted to see if this was so across departments.
+I wanted to see what was the case with satisfaction level across
+departments.
 
-First, I wanted to see satisfaction level of terminates and those still
-at the company, b department and, then, look at how many employees in
-each department crossed the 0.62 average.
+``` r
+ggplot(employee_profile_renamed, aes(x = department, y= satisfaction_level)) +
+  stat_summary(fun = "mean", geom = "bar", fill = "blue") +
+  facet_wrap(~as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) +
+  labs(title="Average Satisfaction Level by Department for Employees \n who have Left and those still at the Company") + 
+  theme(axis.text.x.bottom = element_text(angle = 45, hjust = 1))
+```
 
-**How long, hourly, were employees working?**
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+
+For employees who have left, no department had an average satisfaction
+close to the general average of 0.62. The highest was just a little
+above 0.45. In contrast, satisfaction level surpassed average in all the
+departments for employees still at the company.
+
+From all indications, terminates across board were not satisfied and no
+department that was spared.
+
+**How long, hourly, were each group of employees working?**
 
 ``` r
 hours <- employee_profile_renamed %>% 
   group_by(exit_status = as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) %>%
   summarise(average_hours = mean(mean_monthly_hours))
 
-hours
+ggplot(hours, aes(x = exit_status, y = average_hours)) + 
+  geom_bar(stat = 'identity', fill = 'blue') +
+  labs(title="Who worked more hours?")
 ```
 
-    ## # A tibble: 2 × 2
-    ##   exit_status  average_hours
-    ##   <fct>                <dbl>
-    ## 1 has left              208.
-    ## 2 has not left          199.
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+
+Terminates worked slightly more hours than those still at the company.
+From summary statistics earlier, the mean_monthly_hour for an employee
+on average was about 200. The chart above shows that on average, working
+hours for a terminate surpassed this general average.
+
+let’s drill down to the department level.
 
 ``` r
-ggplot(hours, aes(x = exit_status, y = average_hours)) + 
-  geom_bar(stat = 'identity', fill = 'aquamarine') +
-  labs(title="Who worked more hours?") +
-  theme_dark()
+ggplot(employee_profile_renamed, aes(x = department, y= mean_monthly_hours)) +
+  stat_summary(fun = "mean", geom = "bar", fill = "blue") +
+  facet_wrap(~as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) +
+  labs(title="Average Work Hours per Month by Department for Employees \n still at the Company and those we have Left") + 
+  theme(axis.text.x.bottom = element_text(angle = 45, hjust = 1))
 ```
 
 ![](Turnover_Report_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
-Looks like, on average, those employees who left work slightly more
-hours than their counterparts who are still at the company.
+For monthly work hours, we see that, at least, employees who had left
+the HR department had worked slightly less than the general average
+monthly hours for all employees, unlike what we saw in the analysis of
+Satisfaction level by department in which no department recorded close
+to average satisfaction level for terminates. Although, this is drowned
+by the higher monthly work hours for terminates in all other
+departments, compared to those still at the company. Why did terminates
+in the HR department work less hours than fellow terminates in other
+departments?
+
+Let’s see if number of projects influenced monthly hours.
+
+``` r
+ggplot(employee_profile_renamed, aes(x = num_of_projects, y= mean_monthly_hours)) +
+  stat_summary(fun = "mean", geom = "point", fill = "blue") +
+  facet_wrap(~as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) +
+  labs(title="Relationship between Number of Projects and Monthly Work Hours for \n Employees still at the Company and those we have Left")
+```
+
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+
+This chart reveals more than one insight. First, we see that there were
+terminates involved in as much as 7 projects but no employee still at
+the company was involved in that much.
+
+Also, we see that mean monthly hours for terminates increased as the
+number of projects increased but for employees still at the company, the
+relationship (somewhat non-linear) appear to be negative, i.e, mean
+monthly hours started to decrease at some point as the number of
+projects increased. So, likely, one of the reasons terminates from the
+HR department recorded monthly work hour below their fellow terminates
+in other departments is that they were involved in less projects.
+
+Let’s look at the distribution of monthly work hours for each group of
+employees.
 
 ``` r
 ggplot(employee_profile_renamed, aes(x = mean_monthly_hours)) +
   geom_histogram(fill = 'pink') +
   facet_wrap(~as.factor(recode(left, '0' = 'has not left', '1' = 'has left'))) +
   theme(axis.text.x = element_text(angle = 45)) +
-  labs(title="Distribution of monthly work hours of employees who remained at the \n company and those who left") +
+  labs(title="Distribution of monthly work hours of employees still at the \n company and those who left") +
   theme_dark()
 ```
 
     ## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
 
-![](Turnover_Report_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+![](Turnover_Report_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 The focus here is not the height of the bins, but the spread. Why?
 Remember that there are way more people still at the company than those
@@ -1012,8 +1054,6 @@ above 100 hours. Could it be that those who left did because they were
 confined to a a certain length of work hours, longer than that of those
 still at the company?
 
-Combined with insights from the bar chart, there are indications that
-working for longer hours, when compared to employees still at the
-company, may have contributed to these employees leaving.
-
-I wanted to see how
+Combined with previous insights, there are indications that working for
+longer hours, when compared to employees still at the company, may have
+contributed to these employees leaving.
